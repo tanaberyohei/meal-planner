@@ -1621,7 +1621,7 @@ async function analyzePhoto(){
   document.getElementById('photoLoading').style.display = 'block';
   document.getElementById('photoResult').style.display = 'none';
 
-  var prompt = '写真の料理・食材を識別してください。必ずJSON形式のみで回答。余分な文字は不要です。形式：{"items":[{"name":"料理名","estimatedG":100,"confidence":"high"}]}。最大8品目。グラム数は数値のみ。';
+  var prompt = '日本の家庭料理の写真です。皿や器に入っている料理・食材を正確に識別してください。ルール：(1)液体が入った椀は「味噌汁」または「スープ」(2)果物はそのままの名前（オレンジ、みかんなど）(3)白いご飯は「白ごはん」(4)ジュースは瓶やコップに入っているものだけ。必ずJSON形式のみで回答：{"items":[{"name":"料理名（日本語）","estimatedG":数値,"confidence":"high"}]}。最大8品目。';
 
   try {
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;

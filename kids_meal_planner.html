@@ -1578,7 +1578,7 @@ function selectMealTarget(btn){
 
 async function analyzePhoto(){
   if(!photoBase64){ alert('写真を選んでください'); return; }
-  if(!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyB7ZSd-XkIP6mx6JBZ9PWXbN2qEDonQFAE'){
+  if(!GEMINI_API_KEY || GEMINI_API_KEY.length < 10){
     alert('Gemini APIキーが設定されていません');
     return;
   }

@@ -1621,7 +1621,7 @@ async function analyzePhoto(){
   document.getElementById('photoLoading').style.display = 'block';
   document.getElementById('photoResult').style.display = 'none';
 
-  var prompt = 'この料理の写真を見て、写っている食材・料理をすべて識別してください。必ず以下のJSON形式のみで回答してください。説明文や他の文章は一切不要です。{"items":[{"name":"食材・料理名（日本語）","estimatedG":推定グラム数の数値,"confidence":"high"}]}。量は皿のサイズや一般的な1人前を参考に推定。最大10品目まで。';
+  var prompt = '写真の料理・食材を識別してください。必ずJSON形式のみで回答。余分な文字は不要です。形式：{"items":[{"name":"料理名","estimatedG":100,"confidence":"high"}]}。最大8品目。グラム数は数値のみ。';
 
   try {
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;
@@ -1657,13 +1657,35 @@ async function analyzePhoto(){
     console.log('Raw text:', text);
 
     // JSONを安全に抽出
-    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    var jsonMatch = text.match(/\{[\s\S]*?\}\s*\]/);
+    if(!jsonMatch) jsonMatch = text.match(/\{[\s\S]*\}/);
     if(!jsonMatch){
       alert('食材を識別できませんでした。より鮮明な写真でお試しください。');
       return;
     }
-    var parsed = JSON.parse(jsonMatch[0]);
-    photoDetectedItems = parsed.items || [];
+    var jsonStr = jsonMatch[0];
+    // 末尾が}]で終わらない場合に補完
+    if(!jsonStr.trim().endsWith(']}')){
+      jsonStr = jsonStr.replace(/,?\s*\]?\s*}?\s*$/, ']}');
+    }
+    try {
+      var parsed = JSON.parse(jsonStr);
+      photoDetectedItems = parsed.items || [];
+    } catch(e2) {
+      // さらにシンプルに修復
+      try {
+        var items = [];
+        var nameMatches = text.matchAll(/"name"\s*:\s*"([^"]+)"/g);
+        var gMatches = text.matchAll(/"estimatedG"\s*:\s*(\d+)/g);
+        var names = [...nameMatches].map(m=>m[1]);
+        var gs = [...gMatches].map(m=>+m[1]);
+        names.forEach(function(n,i){ items.push({name:n, estimatedG:gs[i]||100, confidence:'medium'}); });
+        photoDetectedItems = items;
+      } catch(e3) {
+        alert('JSON解析エラー。もう一度お試しください。');
+        return;
+      }
+    }
     renderPhotoResults();
 
   } catch(e) {

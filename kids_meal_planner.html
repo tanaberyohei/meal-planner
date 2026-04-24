@@ -490,6 +490,15 @@ const FOODS={
 
   // ===== よく識別される料理名（AI識別対応） =====
   '白ごはん（ご飯）':{cal:168,pro:2.5,fat:0.3,carb:37.1,ca:3,fe:0.1,vc:0,read:'しろごはん'},
+  '白米':{cal:168,pro:2.5,fat:0.3,carb:37.1,ca:3,fe:0.1,vc:0,read:'はくまい'},
+  '茄子':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'なす'},
+  '焼き茄子':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'やきなす'},
+  '茄子の焼き物':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'なすのやきもの'},
+  'なすび':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'なすび'},
+  'オレンジ':{cal:46,pro:0.9,fat:0.1,carb:11.8,ca:21,fe:0.1,vc:60,read:'おれんじ'},
+  'カットフルーツ':{cal:50,pro:0.8,fat:0.1,carb:13.0,ca:15,fe:0.2,vc:40,read:'かっとふるーつ'},
+  '鶏肉':{cal:190,pro:16.6,fat:14.2,carb:0,ca:5,fe:0.5,vc:0,read:'とりにく'},
+  '鶏むね肉':{cal:108,pro:22.3,fat:1.5,carb:0,ca:4,fe:0.3,vc:0,read:'とりむねにく'},
   'ご飯':{cal:168,pro:2.5,fat:0.3,carb:37.1,ca:3,fe:0.1,vc:0,read:'ごはん'},
   'ライス':{cal:168,pro:2.5,fat:0.3,carb:37.1,ca:3,fe:0.1,vc:0,read:'らいす'},
   '鶏肉の蒸し煮':{cal:150,pro:20,fat:6,carb:2,ca:8,fe:0.5,vc:0,read:'とりにくのむしに'},
@@ -1661,7 +1670,7 @@ async function analyzePhoto(){
   document.getElementById('photoLoading').style.display = 'block';
   document.getElementById('photoResult').style.display = 'none';
 
-  var prompt = '写真の料理・食材をすべて識別してください。見えているものを全部答えてください。注意：皿・器に盛られた果物はそのまま果物名（オレンジ、みかん等）で答える。ジュースはグラスやコップの液体のみ。必ずJSON形式のみで回答：{"items":[{"name":"料理名（日本語）","estimatedG":数値,"confidence":"high"}]}。最大10品目。';
+  var prompt = '写真の料理・食材を識別してください。必ずJSON形式のみで回答。余分な文字は不要です。形式：{"items":[{"name":"料理名（日本語）","estimatedG":推定グラム数,"confidence":"high/medium/low"}]}。量は皿のサイズや一般的な1人前を参考に推定。最大8品目。グラム数は数値のみ。';
 
   try {
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;

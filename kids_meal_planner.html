@@ -290,6 +290,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--t
 
 <p class="sec-label">写真でかんたん入力</p>
 <div class="card card-pad photo-section">
+  <div style="background:#F7F6F3;border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;border:1px solid var(--border)">
+    <div style="font-size:11px;color:var(--text2);font-weight:600;margin-bottom:5px">🔑 Gemini APIキー（初回のみ入力・このページに保存されます）</div>
+    <div style="display:flex;gap:6px">
+      <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." style="flex:1;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);background:#fff">
+      <button onclick="saveGeminiKey()" style="padding:7px 12px;background:var(--brown);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">保存</button>
+    </div>
+    <div id="keyStatus" style="font-size:11px;color:var(--text3);margin-top:4px">キーを入力して保存ボタンを押してください</div>
+  </div>
   <label class="photo-upload-area" for="photoInput">
     <input type="file" id="photoInput" accept="image/*" onchange="onPhotoSelected(this)">
     <div class="photo-icon">📷</div>
@@ -1541,7 +1549,34 @@ function calculate(){
 
 
 // ===== 写真スキャン機能 =====
-var GEMINI_API_KEY = 'AIzaSyCXgCfbT6yEDAQiwZpv4st7zeOP2LzePT4'; // ここにGemini APIキーを設定
+var GEMINI_API_KEY = ''; // APIキーはブラウザ内に保存
+
+function saveGeminiKey(){
+  var key = document.getElementById('geminiKeyInput').value.trim();
+  if(!key || key.length < 10){
+    alert('正しいAPIキーを入力してください');
+    return;
+  }
+  GEMINI_API_KEY = key;
+  try{ localStorage.setItem('gemini_api_key', key); }catch(e){}
+  document.getElementById('keyStatus').textContent = '✓ APIキーを保存しました';
+  document.getElementById('keyStatus').style.color = '#7BA59E';
+  document.getElementById('geminiKeyInput').value = '';
+}
+
+// ページ読み込み時にキーを復元
+(function(){
+  try{
+    var saved = localStorage.getItem('gemini_api_key');
+    if(saved){ 
+      GEMINI_API_KEY = saved;
+      document.addEventListener('DOMContentLoaded', function(){
+        var st = document.getElementById('keyStatus');
+        if(st){ st.textContent = '✓ 保存済みのAPIキーを読み込みました'; st.style.color = '#7BA59E'; }
+      });
+    }
+  }catch(e){}
+})();
 let photoBase64 = null;
 let photoMimeType = 'image/jpeg';
 let photoMealTarget = 'morning';

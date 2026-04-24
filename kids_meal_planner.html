@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>食事プランナー</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brown:#8B6F5E;--brown-light:#F5EDE8;--brown-dark:#5C4033;
+  --teal:#7BA59E;--teal-light:#EAF3F1;
+  --coral:#C97B5A;--coral-light:#FAF0EB;
+  --sage:#8FA88A;--sage-light:#EEF3ED;
+  --cream:#FAF8F5;--card:#fff;--border:#E8E0D8;
+  --text:#3D3028;--text2:#8A7A70;--text3:#BFB3AA;
+  --r:16px;--rs:10px;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--text);padding-bottom:190px}
+.header{background:var(--cream);border-bottom:1px solid var(--border);padding:1.125rem 1.25rem 1rem;display:flex;align-items:center;gap:10px}
+.header-logo{width:34px;height:34px;border-radius:50%;background:var(--brown-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.header h1{font-size:15px;font-weight:700;color:var(--brown-dark);letter-spacing:.04em}
+.header p{font-size:11px;color:var(--text2);margin-top:1px}
+.body{padding:.75rem 1rem}
+.sec-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin:1.5rem 0 .625rem;display:flex;align-items:center;gap:6px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:.75rem;overflow:hidden;box-shadow:0 1px 4px rgba(139,111,94,.06)}
+.card-pad{padding:1rem 1.125rem}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:.75rem}
+.field label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500}
+.field input,.field select{width:100%;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);color:var(--text)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--brown)}
+.cal-banner{background:var(--brown-light);padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E8D9D0}
+.cal-banner .lbl{font-size:11px;color:var(--brown);font-weight:500}
+.cal-banner .val{font-size:14px;font-weight:700;color:var(--brown-dark)}
+.cat-block{border-bottom:1px solid var(--border)}
+.cat-block:last-child{border-bottom:none}
+.cat-header{padding:10px 14px;display:flex;align-items:center;gap:8px;background:#FDFBF9}
+.cat-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.cat-body{padding:10px 14px;background:#fff}
+.search-wrap{position:relative;margin-bottom:6px}
+.s-input{width:100%;font-size:13px;padding:8px 12px 8px 30px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);color:var(--text)}
+.s-input:focus{outline:none;border-color:var(--brown);background:#fff}
+.s-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.3;pointer-events:none}
+.drop{position:absolute;top:calc(100% + 2px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:var(--rs);z-index:400;max-height:200px;overflow-y:auto;display:none;box-shadow:0 6px 24px rgba(139,111,94,.15)}
+.drop-item{padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #F5F0EB;display:flex;justify-content:space-between}
+.drop-item:last-child{border-bottom:none}
+.drop-item:active{background:var(--brown-light)}
+.drop-kcal{font-size:11px;color:var(--text3)}
+.sel-row{display:flex;gap:5px;align-items:stretch;margin-bottom:5px}
+.food-disp{flex:2;font-size:12px;padding:8px 9px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);color:var(--text);min-height:35px;line-height:1.35;word-break:break-all}
+.food-disp.empty{color:var(--text3);font-style:normal}
+.g-sel{font-size:13px;padding:8px 4px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);min-width:66px;flex:0 0 66px}
+.x-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);padding:6px 9px;font-size:12px;color:var(--text3);cursor:pointer;flex-shrink:0}
+.or-lbl{font-size:10px;color:var(--text3);margin:5px 0 4px 1px}
+.q-sel{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);color:var(--text)}
+.detail-btn{width:100%;text-align:left;padding:8px 14px;font-size:12px;color:var(--brown);background:var(--brown-light);border:none;border-top:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:4px}
+.detail-panel{display:none;padding:10px 14px;background:#FDFBF9;border-top:1px solid var(--border)}
+.detail-panel.open{display:block}
+.detail-table{width:100%;border-collapse:collapse;font-size:12px}
+.detail-table th{text-align:left;color:var(--text3);font-weight:500;padding:3px 6px 3px 0;white-space:nowrap}
+.detail-table td{text-align:right;color:var(--text);padding:3px 0;font-weight:500}
+.detail-table tr{border-bottom:1px solid var(--border)}
+.detail-table tr:last-child{border-bottom:none}
+.soup-ing{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:9px 10px;margin-bottom:8px}
+.soup-ing:last-child{margin-bottom:0}
+.soup-ing-lbl{font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px}
+.soup-type-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.soup-type-lbl{font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap}
+.soup-type-sel{font-size:13px;padding:7px 8px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);flex:1}
+.calc-btn{width:100%;padding:14px;background:var(--brown);color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;margin-top:.875rem;letter-spacing:.04em}
+.calc-btn:active{opacity:.88}
+.score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.score-card{border-radius:var(--r);padding:.875rem 1rem;text-align:center}
+.score-card.cal{background:var(--coral-light);border:1px solid #DFA882}
+.score-card.nut{background:var(--sage-light);border:1px solid #A8C4A0}
+.s-lbl{font-size:11px;font-weight:600;margin-bottom:4px}
+.score-card.cal .s-lbl{color:var(--coral)}
+.score-card.nut .s-lbl{color:var(--sage)}
+.s-val{font-size:28px;font-weight:700}
+.score-card.cal .s-val{color:#9A5030}
+.score-card.nut .s-val{color:#5A7A55}
+.s-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+.bar-wrap{margin-bottom:12px}
+.bar-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.bar-nm{font-size:12px;font-weight:500}
+.bar-ns{font-size:11px;color:var(--text3)}
+.bar-track{height:7px;border-radius:4px;background:#EDE5DF;overflow:hidden}
+.bar-seg{height:100%;display:inline-block;vertical-align:top}
+.alert{font-size:12px;padding:10px 12px;border-radius:var(--rs);margin-top:6px;line-height:1.7}
+.alert.warn{background:#FDF6F0;color:#8B5E3C;border:1px solid #E8C5A8}
+.alert.ok{background:#EFF6EE;color:#4A7A44;border:1px solid #AECBA8}
+.tag{display:inline-block;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);margin:3px 3px 3px 0}
+.soup-suggest{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:.875rem 1rem;margin-top:.75rem;box-shadow:0 1px 4px rgba(139,111,94,.06)}
+.soup-suggest-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.lunch-card{background:var(--teal-light);border:1px solid #B0CEC9;border-radius:var(--r);padding:.875rem 1.125rem;margin-bottom:.75rem}
+.lunch-card p{font-size:12px;color:#4A807A;margin-bottom:7px}
+.lunch-nums{display:flex;gap:10px;flex-wrap:wrap}
+.lunch-nums span{font-size:12px;color:#5A9090}
+
+/* ========= 固定リアルタイムバー ========= */
+.live-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#FAF8F5;
+  border-top:2px solid #D4C4B8;
+  z-index:500;
+  box-shadow:0 -4px 20px rgba(139,111,94,.18);
+}
+.live-bar-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 14px 4px;
+  cursor:pointer;
+  user-select:none;
+}
+.live-bar-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em}
+.live-bar-cal{font-size:18px;font-weight:700;color:var(--brown-dark)}
+.live-bar-cal span{font-size:11px;color:var(--text2);font-weight:400;margin-left:4px}
+.live-bar-toggle{font-size:11px;color:var(--text3);padding:2px 6px;background:var(--brown-light);border-radius:20px}
+.live-bar-mini{
+  display:flex;gap:0;
+  padding:0 14px 10px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.live-mini-item{
+  flex:0 0 auto;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 10px;
+  border-right:1px solid var(--border);
+}
+.live-mini-item:last-child{border-right:none}
+.live-mini-lbl{font-size:9px;color:var(--text3);margin-bottom:2px;white-space:nowrap}
+.live-mini-val{font-size:13px;font-weight:700;color:var(--brown-dark)}
+.live-mini-unit{font-size:9px;color:var(--text3);margin-top:1px}
+.live-bar-detail{
+  display:none;
+  padding:0 14px 14px;
+  border-top:1px solid var(--border);
+  margin-top:4px;
+  background:#FAF8F5;
+}
+.live-bar-detail.open{display:block}
+.live-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  padding-top:10px;
+}
+.live-detail-item{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:8px;
+  text-align:center;
+}
+.live-detail-lbl{font-size:10px;color:var(--text3);margin-bottom:3px}
+.live-detail-val{font-size:14px;font-weight:700;color:var(--brown-dark)}
+.live-detail-unit{font-size:9px;color:var(--text3)}
+.live-detail-bar{height:4px;border-radius:2px;background:#EDE5DF;margin-top:5px;overflow:hidden}
+.live-detail-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
+
+/* ===== 昼ごはんモード切替 ===== */
+.lunch-mode-btn{flex:1;padding:9px 8px;font-size:13px;font-weight:700;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
+.lunch-mode-btn.active{border-color:var(--brown);background:var(--brown-light);color:var(--brown-dark)}
+/* ===== 食事ごとの栄養サマリー ===== */
+.meal-summary{background:var(--brown-light);border-radius:var(--rs);padding:10px 12px;margin-top:10px;border:1px solid #E8D9D0}
+.meal-summary-title{font-size:11px;font-weight:700;color:var(--brown);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.meal-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.meal-summary-item{text-align:center}
+.meal-summary-val{font-size:13px;font-weight:700;color:var(--brown-dark)}
+.meal-summary-lbl{font-size:9px;color:var(--text3);margin-top:1px}
+
+/* ===== 複数入力・追加ボタン ===== */
+.multi-item{border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;background:#FDFBF9}
+.multi-item:last-child{margin-bottom:0}
+.add-item-btn{width:100%;padding:8px;font-size:12px;color:var(--brown);background:var(--brown-light);border:1px dashed #D4C4B8;border-radius:var(--rs);cursor:pointer;margin-top:6px;font-weight:600;letter-spacing:.02em}
+.add-item-btn:active{opacity:.8}
+.pct-low{color:#C97B5A}
+.pct-mid{color:#C9A05A}
+.pct-ok{color:#7BA59E}
+
+/* ===== 写真スキャン機能 ===== */
+.photo-section{margin-bottom:.75rem}
+.photo-upload-area{border:2px dashed var(--border);border-radius:var(--r);padding:1.5rem 1rem;text-align:center;cursor:pointer;background:#FDFBF9;transition:border-color .2s;display:block}
+.photo-upload-area:active{border-color:var(--brown)}
+.photo-upload-area input[type=file]{display:none}
+.photo-icon{font-size:32px;margin-bottom:6px}
+.photo-upload-title{font-size:14px;font-weight:700;color:var(--brown-dark);margin-bottom:3px}
+.photo-upload-sub{font-size:11px;color:var(--text3)}
+.photo-preview{width:100%;max-height:200px;object-fit:contain;border-radius:var(--rs);margin-top:10px;display:none}
+.photo-meal-sel{display:flex;gap:8px;margin-top:10px}
+.meal-sel-btn{flex:1;padding:8px 4px;font-size:12px;font-weight:700;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;color:var(--text2);cursor:pointer;text-align:center}
+.meal-sel-btn.active{border-color:var(--brown);background:var(--brown-light);color:var(--brown-dark)}
+.photo-analyze-btn{width:100%;padding:12px;background:var(--brown);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:none}
+.photo-analyze-btn:disabled{opacity:.5;cursor:not-allowed}
+.photo-result{margin-top:10px;display:none}
+.photo-result-title{font-size:12px;font-weight:700;color:var(--brown-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.photo-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.photo-item:last-child{border-bottom:none}
+.photo-item-name{flex:1;font-size:13px;color:var(--text)}
+.photo-item-kcal{font-size:11px;color:var(--text3);white-space:nowrap}
+.photo-item-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.photo-item-check.checked{background:var(--brown);border-color:var(--brown);color:#fff}
+.photo-apply-btn{width:100%;padding:10px;background:var(--sage);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;margin-top:10px}
+.photo-loading{text-align:center;padding:1rem;color:var(--text2);font-size:13px;display:none}
+.photo-loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brown);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.photo-note{font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">🍽</div>
+  <div>
+    <h1>食事プランナー</h1>
+    <p>年齢・体格に合わせた栄養バランスチェック</p>
+  </div>
+</div>
+<div class="body">
+
+<p class="sec-label">基本情報</p>
+<div class="card card-pad">
+  <div class="row2">
+    <div class="field"><label>性別</label><select id="gender"><option value="male">男性</option><option value="female">女性</option></select></div>
+    <div class="field"><label>年齢</label><select id="age"><option value="3">3歳</option><option value="4">4歳</option><option value="5">5歳</option><option value="6">6歳</option><option value="7">7歳</option><option value="8">8歳</option><option value="9">9歳</option><option value="10" selected>10歳</option><option value="11">11歳</option><option value="12">12歳</option><option value="13">13歳</option><option value="14">14歳</option><option value="15">15歳</option><option value="16">16歳</option><option value="17">17歳</option><option value="18">18歳</option><option value="19">19歳</option><option value="20">20歳</option><option value="21">21歳</option><option value="22">22歳</option><option value="23">23歳</option><option value="24">24歳</option><option value="25">25歳</option><option value="26">26歳</option><option value="27">27歳</option><option value="28">28歳</option><option value="29">29歳</option><option value="30">30歳</option><option value="31">31歳</option><option value="32">32歳</option><option value="33">33歳</option><option value="34">34歳</option><option value="35">35歳</option><option value="36">36歳</option><option value="37">37歳</option><option value="38">38歳</option><option value="39">39歳</option><option value="40">40歳</option><option value="41">41歳</option><option value="42">42歳</option><option value="43">43歳</option><option value="44">44歳</option><option value="45">45歳</option><option value="46">46歳</option><option value="47">47歳</option><option value="48">48歳</option><option value="49">49歳</option><option value="50">50歳</option><option value="51">51歳</option><option value="52">52歳</option><option value="53">53歳</option><option value="54">54歳</option><option value="55">55歳</option><option value="56">56歳</option><option value="57">57歳</option><option value="58">58歳</option><option value="59">59歳</option><option value="60">60歳</option><option value="61">61歳</option><option value="62">62歳</option><option value="63">63歳</option><option value="64">64歳</option><option value="65">65歳</option><option value="66">66歳</option><option value="67">67歳</option><option value="68">68歳</option><option value="69">69歳</option><option value="70">70歳</option><option value="71">71歳</option><option value="72">72歳</option><option value="73">73歳</option><option value="74">74歳</option><option value="75">75歳</option><option value="76">76歳</option><option value="77">77歳</option><option value="78">78歳</option><option value="79">79歳</option><option value="80">80歳</option><option value="81">81歳</option><option value="82">82歳</option><option value="83">83歳</option><option value="84">84歳</option><option value="85">85歳</option><option value="86">86歳</option><option value="87">87歳</option><option value="88">88歳</option><option value="89">89歳</option><option value="90">90歳</option><option value="91">91歳</option><option value="92">92歳</option><option value="93">93歳</option><option value="94">94歳</option><option value="95">95歳</option><option value="96">96歳</option><option value="97">97歳</option><option value="98">98歳</option><option value="99">99歳</option><option value="100">100歳</option></select></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>体重</label><select id="weight"><option value="10">10kg</option><option value="11">11kg</option><option value="12">12kg</option><option value="13">13kg</option><option value="14">14kg</option><option value="15">15kg</option><option value="16">16kg</option><option value="17">17kg</option><option value="18">18kg</option><option value="19">19kg</option><option value="20">20kg</option><option value="21">21kg</option><option value="22">22kg</option><option value="23">23kg</option><option value="24">24kg</option><option value="25">25kg</option><option value="26">26kg</option><option value="27">27kg</option><option value="28">28kg</option><option value="29">29kg</option><option value="30">30kg</option><option value="31">31kg</option><option value="32">32kg</option><option value="33">33kg</option><option value="34">34kg</option><option value="35" selected>35kg</option><option value="36">36kg</option><option value="37">37kg</option><option value="38">38kg</option><option value="39">39kg</option><option value="40">40kg</option><option value="41">41kg</option><option value="42">42kg</option><option value="43">43kg</option><option value="44">44kg</option><option value="45">45kg</option><option value="46">46kg</option><option value="47">47kg</option><option value="48">48kg</option><option value="49">49kg</option><option value="50">50kg</option><option value="51">51kg</option><option value="52">52kg</option><option value="53">53kg</option><option value="54">54kg</option><option value="55">55kg</option><option value="56">56kg</option><option value="57">57kg</option><option value="58">58kg</option><option value="59">59kg</option><option value="60">60kg</option><option value="61">61kg</option><option value="62">62kg</option><option value="63">63kg</option><option value="64">64kg</option><option value="65">65kg</option><option value="66">66kg</option><option value="67">67kg</option><option value="68">68kg</option><option value="69">69kg</option><option value="70">70kg</option><option value="71">71kg</option><option value="72">72kg</option><option value="73">73kg</option><option value="74">74kg</option><option value="75">75kg</option><option value="76">76kg</option><option value="77">77kg</option><option value="78">78kg</option><option value="79">79kg</option><option value="80">80kg</option><option value="81">81kg</option><option value="82">82kg</option><option value="83">83kg</option><option value="84">84kg</option><option value="85">85kg</option><option value="86">86kg</option><option value="87">87kg</option><option value="88">88kg</option><option value="89">89kg</option><option value="90">90kg</option><option value="91">91kg</option><option value="92">92kg</option><option value="93">93kg</option><option value="94">94kg</option><option value="95">95kg</option><option value="96">96kg</option><option value="97">97kg</option><option value="98">98kg</option><option value="99">99kg</option><option value="100">100kg</option><option value="101">101kg</option><option value="102">102kg</option><option value="103">103kg</option><option value="104">104kg</option><option value="105">105kg</option><option value="106">106kg</option><option value="107">107kg</option><option value="108">108kg</option><option value="109">109kg</option><option value="110">110kg</option><option value="111">111kg</option><option value="112">112kg</option><option value="113">113kg</option><option value="114">114kg</option><option value="115">115kg</option><option value="116">116kg</option><option value="117">117kg</option><option value="118">118kg</option><option value="119">119kg</option><option value="120">120kg</option></select></div>
+    <div class="field"><label>身長</label><select id="height"><option value="80">80cm</option><option value="81">81cm</option><option value="82">82cm</option><option value="83">83cm</option><option value="84">84cm</option><option value="85">85cm</option><option value="86">86cm</option><option value="87">87cm</option><option value="88">88cm</option><option value="89">89cm</option><option value="90">90cm</option><option value="91">91cm</option><option value="92">92cm</option><option value="93">93cm</option><option value="94">94cm</option><option value="95">95cm</option><option value="96">96cm</option><option value="97">97cm</option><option value="98">98cm</option><option value="99">99cm</option><option value="100">100cm</option><option value="101">101cm</option><option value="102">102cm</option><option value="103">103cm</option><option value="104">104cm</option><option value="105">105cm</option><option value="106">106cm</option><option value="107">107cm</option><option value="108">108cm</option><option value="109">109cm</option><option value="110">110cm</option><option value="111">111cm</option><option value="112">112cm</option><option value="113">113cm</option><option value="114">114cm</option><option value="115">115cm</option><option value="116">116cm</option><option value="117">117cm</option><option value="118">118cm</option><option value="119">119cm</option><option value="120">120cm</option><option value="121">121cm</option><option value="122">122cm</option><option value="123">123cm</option><option value="124">124cm</option><option value="125">125cm</option><option value="126">126cm</option><option value="127">127cm</option><option value="128">128cm</option><option value="129">129cm</option><option value="130">130cm</option><option value="131">131cm</option><option value="132">132cm</option><option value="133">133cm</option><option value="134">134cm</option><option value="135">135cm</option><option value="136">136cm</option><option value="137">137cm</option><option value="138">138cm</option><option value="139">139cm</option><option value="140" selected>140cm</option><option value="141">141cm</option><option value="142">142cm</option><option value="143">143cm</option><option value="144">144cm</option><option value="145">145cm</option><option value="146">146cm</option><option value="147">147cm</option><option value="148">148cm</option><option value="149">149cm</option><option value="150">150cm</option><option value="151">151cm</option><option value="152">152cm</option><option value="153">153cm</option><option value="154">154cm</option><option value="155">155cm</option><option value="156">156cm</option><option value="157">157cm</option><option value="158">158cm</option><option value="159">159cm</option><option value="160">160cm</option><option value="161">161cm</option><option value="162">162cm</option><option value="163">163cm</option><option value="164">164cm</option><option value="165">165cm</option><option value="166">166cm</option><option value="167">167cm</option><option value="168">168cm</option><option value="169">169cm</option><option value="170">170cm</option><option value="171">171cm</option><option value="172">172cm</option><option value="173">173cm</option><option value="174">174cm</option><option value="175">175cm</option><option value="176">176cm</option><option value="177">177cm</option><option value="178">178cm</option><option value="179">179cm</option><option value="180">180cm</option><option value="181">181cm</option><option value="182">182cm</option><option value="183">183cm</option><option value="184">184cm</option><option value="185">185cm</option><option value="186">186cm</option><option value="187">187cm</option><option value="188">188cm</option><option value="189">189cm</option><option value="190">190cm</option><option value="191">191cm</option><option value="192">192cm</option><option value="193">193cm</option><option value="194">194cm</option><option value="195">195cm</option><option value="196">196cm</option><option value="197">197cm</option><option value="198">198cm</option><option value="199">199cm</option><option value="200">200cm</option></select></div>
+  </div>
+  <div class="field" style="margin-bottom:.75rem"><label>運動レベル</label>
+    <select id="activity">
+      <option value="1.35">低め（ほぼ運動なし・座りがち）</option>
+      <option value="1.5">普通（週1〜2日・軽い運動）</option>
+      <option value="1.75" selected>活発（週3〜4日・部活など）</option>
+      <option value="2.0">スポーツ（週5〜6日・本格練習）</option>
+      <option value="2.3">本格競技（毎日練習・試合あり）</option>
+      <option value="2.6">アスリート（1日2部練・強化選手）</option>
+    </select>
+  </div>
+  <div style="border-top:1px solid var(--border);padding-top:.75rem">
+    <div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">昼ごはんの種類</div>
+    <div style="display:flex;gap:8px">
+      <button class="lunch-mode-btn active" id="lunchModeSchool" onclick="setLunchMode('school')">給食（自動）</button>
+      <button class="lunch-mode-btn" id="lunchModeManual" onclick="setLunchMode('manual')">昼ごはんを入力</button>
+    </div>
+  </div>
+</div>
+
+<p class="sec-label">朝ごはん</p>
+<div class="card" id="morning-card">
+  <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="morning-cal-target">— kcal</span></div>
+  <div id="morning-cats"></div>
+  <div id="morning-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+</div>
+
+<p class="sec-label">昼ごはん</p>
+<div class="card card-pad" style="margin-bottom:.75rem">
+
+  <div id="lunchSchoolPanel">
+    <div class="lunch-card" style="margin-bottom:0">
+      <p>文部科学省の学校給食摂取基準（<span id="lunch-grade">小学校中学年の基準</span>）をベースに自動で差し引きます</p>
+      <div class="lunch-nums">
+        <span>カロリー <strong id="lunch-cal">約640kcal</strong></span>
+        <span>たんぱく質 <strong id="lunch-pro">約26g</strong></span>
+        <span>脂質 <strong id="lunch-fat">約18g</strong></span>
+        <span>炭水化物 <strong id="lunch-carb">約85g</strong></span>
+        <span>カルシウム <strong id="lunch-ca">約300mg</strong></span>
+        <span>鉄分 <strong id="lunch-fe">約3mg</strong></span>
+        <span>ビタミンC <strong id="lunch-vc">約25mg</strong></span>
+      </div>
+    </div>
+  </div>
+  <div id="lunchManualPanel" style="display:none">
+    <div id="lunch-cats"></div>
+    <div id="lunch-meal-summary" class="meal-summary" style="display:none"></div>
+  </div>
+</div>
+
+<p class="sec-label">夜ごはん</p>
+<div class="card" id="night-card">
+  <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="night-cal-target">— kcal</span></div>
+  <div id="night-cats"></div>
+  <div id="night-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+</div>
+
+
+<p class="sec-label">写真でかんたん入力</p>
+<div class="card card-pad photo-section">
+  <label class="photo-upload-area" for="photoInput">
+    <input type="file" id="photoInput" accept="image/*" onchange="onPhotoSelected(this)">
+    <div class="photo-icon">📷</div>
+    <div class="photo-upload-title">料理の写真をアップロード</div>
+    <div class="photo-upload-sub">タップして写真を選ぶ（カメラ・ギャラリー対応）</div>
+    <img id="photoPreview" class="photo-preview" alt="プレビュー">
+  </label>
+  <div class="photo-meal-sel" id="mealSelRow" style="display:none">
+    <button class="meal-sel-btn active" data-meal="morning" onclick="selectMealTarget(this)">朝ごはん</button>
+    <button class="meal-sel-btn" data-meal="night" onclick="selectMealTarget(this)">夜ごはん</button>
+  </div>
+  <button class="photo-analyze-btn" id="analyzeBtn" onclick="analyzePhoto()">この写真を解析する</button>
+  <div class="photo-loading" id="photoLoading">
+    <span class="photo-loading-spinner"></span>AIが食材を識別中...
+  </div>
+  <div class="photo-result" id="photoResult">
+    <div class="photo-result-title">
+      <span>識別された食材</span>
+      <span style="font-size:11px;color:var(--text3);font-weight:400">チェックして反映する食材を選んでください</span>
+    </div>
+    <div id="photoItemList"></div>
+    <button class="photo-apply-btn" id="photoApplyBtn" onclick="applyPhotoResults()">選んだ食材をアプリに反映する</button>
+  </div>
+  <p class="photo-note">※量は目安です。反映後に調整できます</p>
+</div>
+
+<button class="calc-btn" onclick="calculate()">栄養バランスを確認する</button>
+
+<div id="result" style="display:none;margin-top:1rem">
+  <p class="sec-label">今日の評価</p>
+  <div class="score-grid">
+    <div class="score-card cal">
+      <div class="s-lbl">カロリー達成率</div>
+      <div class="s-val" id="r-cal-pct">—%</div>
+      <div class="s-sub"><span id="r-cal">—</span> / <span id="r-cal-goal">—</span> kcal</div>
+    </div>
+    <div class="score-card nut">
+      <div class="s-lbl">栄養素達成率</div>
+      <div class="s-val" id="r-nut-pct">—%</div>
+      <div class="s-sub">6栄養素の平均</div>
+    </div>
+  </div>
+  <div class="card card-pad">
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#8B6F5E"></div>朝</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#7BA59E"></div>給食</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#C97B5A"></div>夜</div>
+    </div>
+    <div id="bars"></div>
+    <div id="alerts"></div>
+  </div>
+  <div class="soup-suggest">
+    <div class="soup-suggest-title">今夜のスープにおすすめの追加具材</div>
+    <div id="soup-tags"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ======= 固定リアルタイムバー ======= -->
+<div class="live-bar" id="liveBar">
+  <div class="live-bar-header" onclick="toggleLiveDetail()">
+    <div>
+      <div class="live-bar-title">リアルタイム合計（給食含む）</div>
+      <div class="live-bar-cal" id="live-cal">0 <span>kcal</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#888">目標まで</div>
+        <div style="font-size:13px;font-weight:700" id="live-remaining">—</div>
+      </div>
+      <div class="live-bar-toggle" id="live-toggle">▲ 詳細</div>
+    </div>
+  </div>
+  <div class="live-bar-mini">
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">たんぱく質</div>
+      <div class="live-mini-val" id="lv-pro">0</div>
+      <div class="live-mini-unit">g</div>
+    </div>
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">炭水化物</div>
+      <div class="live-mini-val" id="lv-carb">0</div>
+      <div class="live-mini-unit">g</div>
+    </div>
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">脂質</div>
+      <div class="live-mini-val" id="lv-fat">0</div>
+      <div class="live-mini-unit">g</div>
+    </div>
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">カルシウム</div>
+      <div class="live-mini-val" id="lv-ca">0</div>
+      <div class="live-mini-unit">mg</div>
+    </div>
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">鉄分</div>
+      <div class="live-mini-val" id="lv-fe">0.0</div>
+      <div class="live-mini-unit">mg</div>
+    </div>
+    <div class="live-mini-item">
+      <div class="live-mini-lbl">ビタミンC</div>
+      <div class="live-mini-val" id="lv-vc">0</div>
+      <div class="live-mini-unit">mg</div>
+    </div>
+  </div>
+  <div class="live-bar-detail" id="liveDetail">
+    <div class="live-detail-grid" id="liveDetailGrid"></div>
+  </div>
+</div>
+
+<script>
+const FOODS={
+  '鶏ハム':{cal:105,pro:21,fat:1.5,carb:0,ca:4,fe:0.3,vc:0,read:'とりはむ'},
+  '茹で鶏むね':{cal:108,pro:22.3,fat:1.5,carb:0,ca:4,fe:0.3,vc:0,read:'ゆでとり'},
+  '茹で豚':{cal:263,pro:19.3,fat:19.2,carb:0.2,ca:4,fe:0.5,vc:1,read:'ゆでぶた'},
+  '鮭の塩焼き':{cal:133,pro:22.3,fat:4.1,carb:0.1,ca:14,fe:0.5,vc:0,read:'さけ'},
+  'サバの塩焼き':{cal:202,pro:20.6,fat:12.1,carb:0.3,ca:6,fe:1.2,vc:0,read:'さば'},
+  'まぐろの刺身':{cal:125,pro:26.4,fat:1.4,carb:0.1,ca:5,fe:1.1,vc:0,read:'まぐろ'},
+  'ツナ缶':{cal:70,pro:16,fat:0.7,carb:0.1,ca:5,fe:0.5,vc:0,read:'つな'},
+  'サーモン':{cal:133,pro:20.1,fat:5.7,carb:0.1,ca:14,fe:0.4,vc:0,read:'さーもん'},
+  '卵焼き':{cal:151,pro:12.3,fat:10.3,carb:0.3,ca:51,fe:1.8,vc:0,read:'たまごやき'},
+  'ゆで卵':{cal:151,pro:12.3,fat:10.3,carb:0.3,ca:51,fe:1.8,vc:0,read:'ゆでたまご'},
+  '目玉焼き':{cal:151,pro:12.3,fat:10.3,carb:0.3,ca:51,fe:1.8,vc:0,read:'めだまやき'},
+  'スクランブルエッグ':{cal:160,pro:12,fat:12,carb:0.5,ca:50,fe:1.8,vc:0,read:'すくらんぶる'},
+  '白ごはん':{cal:168,pro:2.5,fat:0.3,carb:37.1,ca:3,fe:0.1,vc:0,read:'しろごはん'},
+  '食パン':{cal:264,pro:9.3,fat:4.4,carb:46.7,ca:29,fe:0.8,vc:0,read:'しょくぱん'},
+  'ロールパン':{cal:316,pro:10.1,fat:9.0,carb:48.6,ca:47,fe:0.9,vc:0,read:'ろーるぱん'},
+  'フランスパン':{cal:279,pro:9.4,fat:1.3,carb:57.5,ca:22,fe:0.9,vc:0,read:'ふらんすぱん'},
+  'オートミール':{cal:380,pro:13.7,fat:5.7,carb:69.1,ca:47,fe:3.9,vc:0,read:'おーとみーる'},
+  'ほうれん草のおひたし':{cal:20,pro:2.2,fat:0.4,carb:3.1,ca:49,fe:2.0,vc:35,read:'ほうれんそう'},
+  'ブロッコリー蒸し':{cal:33,pro:4.3,fat:0.5,carb:6.6,ca:38,fe:1.0,vc:120,read:'ぶろっこりー'},
+  '小松菜炒め':{cal:14,pro:1.5,fat:0.2,carb:2.4,ca:170,fe:2.8,vc:39,read:'こまつな'},
+  'にんじんグラッセ':{cal:39,pro:0.7,fat:0.1,carb:9.3,ca:28,fe:0.2,vc:4,read:'にんじん'},
+  'キャベツの千切り':{cal:23,pro:1.3,fat:0.2,carb:5.2,ca:43,fe:0.3,vc:41,read:'きゃべつ'},
+  'トマト':{cal:19,pro:0.7,fat:0.1,carb:4.7,ca:7,fe:0.2,vc:15,read:'とまと'},
+  'プチトマト':{cal:30,pro:1.1,fat:0.1,carb:7.2,ca:12,fe:0.4,vc:32,read:'ぷちとまと'},
+  'きゅうり':{cal:14,pro:1.0,fat:0.1,carb:3.0,ca:26,fe:0.3,vc:14,read:'きゅうり'},
+  'アボカド':{cal:187,pro:2.1,fat:18.7,carb:6.2,ca:9,fe:0.7,vc:15,read:'あぼかど'},
+  'じゃがいもサラダ':{cal:85,pro:1.9,fat:3.0,carb:13.0,ca:10,fe:0.4,vc:28,read:'じゃがいもさらだ'},
+  '納豆':{cal:190,pro:16.5,fat:10.0,carb:12.1,ca:90,fe:3.3,vc:0,read:'なっとう'},
+  '木綿豆腐':{cal:72,pro:6.6,fat:4.2,carb:1.6,ca:93,fe:1.5,vc:0,read:'とうふ'},
+  '絹ごし豆腐':{cal:56,pro:4.9,fat:3.0,carb:2.0,ca:75,fe:1.2,vc:0,read:'きぬごし'},
+  'もずく酢':{cal:4,pro:0.2,fat:0.1,carb:1.4,ca:22,fe:0.1,vc:0,read:'もずく'},
+  '厚揚げ':{cal:143,pro:10.7,fat:11.3,carb:0.2,ca:240,fe:2.6,vc:0,read:'あつあげ'},
+  'ヨーグルト（プレーン）':{cal:62,pro:3.6,fat:3.0,carb:4.9,ca:120,fe:0.0,vc:1,read:'よーぐると'},
+  '牛乳':{cal:61,pro:3.3,fat:3.8,carb:4.8,ca:110,fe:0.0,vc:1,read:'ぎゅうにゅう'},
+  '豆乳':{cal:46,pro:3.6,fat:2.0,carb:3.1,ca:15,fe:1.2,vc:0,read:'とうにゅう'},
+  'チーズ':{cal:339,pro:22.7,fat:26.0,carb:1.3,ca:630,fe:0.3,vc:0,read:'ちーず'},
+  '野菜ジュース':{cal:35,pro:0.8,fat:0.1,carb:8.2,ca:20,fe:0.5,vc:30,read:'やさいじゅーす'},
+  'オレンジジュース':{cal:42,pro:0.7,fat:0.1,carb:10.1,ca:10,fe:0.1,vc:40,read:'おれんじ'},
+  'りんごジュース':{cal:44,pro:0.1,fat:0.1,carb:11.2,ca:3,fe:0.1,vc:2,read:'りんごじゅーす'},
+  'バナナ':{cal:86,pro:1.1,fat:0.2,carb:22.5,ca:6,fe:0.3,vc:16,read:'ばなな'},
+  'みかん':{cal:46,pro:0.7,fat:0.1,carb:12.0,ca:21,fe:0.1,vc:32,read:'みかん'},
+  'りんご':{cal:57,pro:0.1,fat:0.2,carb:15.5,ca:3,fe:0.0,vc:4,read:'りんご'},
+  'いちご':{cal:34,pro:0.9,fat:0.1,carb:8.5,ca:17,fe:0.3,vc:62,read:'いちご'},
+  'キウイ':{cal:53,pro:1.0,fat:0.1,carb:13.5,ca:33,fe:0.3,vc:69,read:'きうい'},
+  'グレープフルーツ':{cal:40,pro:0.9,fat:0.1,carb:9.6,ca:15,fe:0.0,vc:36,read:'ぐれーぷ'},
+  'ぶどう':{cal:59,pro:0.4,fat:0.1,carb:15.7,ca:6,fe:0.1,vc:2,read:'ぶどう'},
+  'とんかつ':{cal:290,pro:22,fat:18,carb:12,ca:15,fe:1.2,vc:0,read:'とんかつ'},
+  '唐揚げ':{cal:270,pro:20,fat:17,carb:8,ca:12,fe:1.0,vc:0,read:'からあげ'},
+  '野菜炒め':{cal:130,pro:8,fat:7,carb:10,ca:40,fe:1.2,vc:30,read:'やさいいため'},
+  'カレーライス':{cal:680,pro:18,fat:16,carb:110,ca:50,fe:2.5,vc:8,read:'かれー'},
+  'シチュー':{cal:350,pro:18,fat:14,carb:38,ca:150,fe:1.5,vc:15,read:'しちゅー'},
+  'ハンバーグ':{cal:250,pro:18,fat:17,carb:8,ca:20,fe:2.0,vc:0,read:'はんばーぐ'},
+  '餃子':{cal:200,pro:11,fat:10,carb:18,ca:25,fe:1.0,vc:5,read:'ぎょうざ'},
+  '肉じゃが':{cal:220,pro:12,fat:8,carb:28,ca:30,fe:1.5,vc:20,read:'にくじゃが'},
+  '豚の生姜焼き':{cal:220,pro:18,fat:14,carb:5,ca:10,fe:1.0,vc:0,read:'しょうがやき'},
+  '鶏の照り焼き':{cal:200,pro:20,fat:10,carb:8,ca:10,fe:0.8,vc:0,read:'てりやき'},
+  '焼き魚（鮭）':{cal:133,pro:22.3,fat:4.1,carb:0.1,ca:14,fe:0.5,vc:0,read:'やきざかな'},
+  'アジフライ':{cal:220,pro:17,fat:12,carb:13,ca:65,fe:0.6,vc:0,read:'あじふらい'},
+  'エビフライ':{cal:195,pro:18,fat:9,carb:13,ca:90,fe:1.2,vc:0,read:'えびふらい'},
+  '麻婆豆腐':{cal:180,pro:12,fat:12,carb:8,ca:100,fe:2.0,vc:2,read:'まーぼー'},
+  'オムライス':{cal:480,pro:18,fat:18,carb:62,ca:80,fe:2.0,vc:5,read:'おむらいす'},
+  'スパゲッティ':{cal:480,pro:16,fat:14,carb:72,ca:40,fe:2.0,vc:8,read:'すぱげてぃ'},
+  '親子丼':{cal:560,pro:25,fat:14,carb:78,ca:60,fe:2.2,vc:2,read:'おやこどん'},
+  'ほうれん草の胡麻和え':{cal:45,pro:3.0,fat:2.0,carb:4.5,ca:60,fe:2.2,vc:30,read:'ほうれんそうごまあえ'},
+  'ブロッコリーのサラダ':{cal:35,pro:4.5,fat:0.5,carb:7.0,ca:40,fe:1.0,vc:120,read:'ぶろっこりーさらだ'},
+  'きんぴらごぼう':{cal:80,pro:1.5,fat:3.0,carb:12,ca:30,fe:0.5,vc:3,read:'きんぴら'},
+  'キャベツの浅漬け':{cal:23,pro:1.3,fat:0.2,carb:5.2,ca:43,fe:0.3,vc:41,read:'あさづけ'},
+  '大根サラダ':{cal:20,pro:0.6,fat:0.1,carb:4.5,ca:26,fe:0.2,vc:12,read:'だいこんさらだ'},
+  '切り干し大根煮':{cal:60,pro:2.5,fat:0.5,carb:12,ca:80,fe:1.5,vc:0,read:'きりぼし'},
+  'ひじきの煮物':{cal:65,pro:3.0,fat:2.5,carb:9,ca:140,fe:2.8,vc:0,read:'ひじき'},
+  'れんこんのきんぴら':{cal:70,pro:1.5,fat:2.0,carb:12,ca:20,fe:0.5,vc:40,read:'れんこん'},
+  '枝豆':{cal:135,pro:11.5,fat:6.1,carb:8.8,ca:76,fe:2.7,vc:27,read:'えだまめ'},
+  '冷奴':{cal:72,pro:6.6,fat:4.2,carb:1.6,ca:93,fe:1.5,vc:0,read:'ひややっこ'},
+  '厚揚げの煮物':{cal:143,pro:10.7,fat:11.3,carb:0.2,ca:240,fe:2.6,vc:0,read:'あつあげに'},
+  '湯豆腐':{cal:56,pro:4.9,fat:3.0,carb:2.0,ca:75,fe:1.2,vc:0,read:'ゆどうふ'},
+  '麦茶':{cal:1,pro:0,fat:0,carb:0.3,ca:2,fe:0.1,vc:0,read:'むぎちゃ'},
+
+  // ===== お酒・アルコール =====
+  'ビール（350ml）':{cal:141,pro:1.1,fat:0,carb:10.9,ca:7,fe:0,vc:0,read:'びーる'},
+  '発泡酒（350ml）':{cal:158,pro:0.4,fat:0,carb:12.6,ca:4,fe:0,vc:0,read:'はっぽうしゅ'},
+  '第三のビール（350ml）':{cal:154,pro:0.7,fat:0,carb:14.0,ca:4,fe:0,vc:0,read:'だいさんのびーる'},
+  '日本酒（1合・180ml）':{cal:185,pro:0.7,fat:0,carb:8.1,ca:4,fe:0,vc:0,read:'にほんしゅ'},
+  '焼酎（水割り・200ml）':{cal:115,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0,read:'しょうちゅう'},
+  'ワイン（グラス・120ml）':{cal:88,pro:0.1,fat:0,carb:1.8,ca:8,fe:0.3,vc:0,read:'わいん'},
+  '赤ワイン（グラス・120ml）':{cal:85,pro:0.2,fat:0,carb:1.5,ca:8,fe:0.4,vc:0,read:'あかわいん'},
+  '白ワイン（グラス・120ml）':{cal:88,pro:0.1,fat:0,carb:2.0,ca:8,fe:0.3,vc:0,read:'しろわいん'},
+  'ハイボール（350ml）':{cal:140,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0,read:'はいぼーる'},
+  'チューハイ・レモン（350ml）':{cal:147,pro:0,fat:0,carb:7.0,ca:4,fe:0,vc:4,read:'ちゅーはい'},
+  'チューハイ・ゼロ（350ml）':{cal:49,pro:0,fat:0,carb:0.4,ca:0,fe:0,vc:0,read:'ちゅーはいぜろ'},
+  'ウイスキー（シングル・30ml）':{cal:71,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0,read:'ういすきー'},
+  'ビール（500ml）':{cal:201,pro:1.5,fat:0,carb:15.5,ca:10,fe:0,vc:0,read:'びーる500'},
+  'ノンアルコールビール（350ml）':{cal:35,pro:0.7,fat:0,carb:7.7,ca:7,fe:0,vc:0,read:'のんあるこーる'},
+  '梅酒（100ml）':{cal:156,pro:0.1,fat:0,carb:20.7,ca:2,fe:0.1,vc:0,read:'うめしゅ'},
+  'スパークリングワイン（120ml）':{cal:85,pro:0.2,fat:0,carb:3.2,ca:8,fe:0.3,vc:0,read:'すぱーくりんぐわいん'},
+  'ほうじ茶':{cal:0,pro:0,fat:0,carb:0.2,ca:4,fe:0.2,vc:0,read:'ほうじちゃ'},
+  'なめこ':{cal:15,pro:1.7,fat:0.5,carb:5.4,ca:4,fe:0.7,vc:0,read:'なめこ'},
+  'わかめ':{cal:16,pro:1.9,fat:0.2,carb:6.2,ca:100,fe:1.0,vc:0,read:'わかめ'},
+  '豆腐（スープ用）':{cal:72,pro:6.6,fat:4.2,carb:1.6,ca:93,fe:1.5,vc:0,read:'とうふ'},
+  'じゃがいも（スープ用）':{cal:76,pro:1.6,fat:0.1,carb:17.6,ca:4,fe:0.4,vc:28,read:'じゃがいも'},
+  'にんじん（スープ用）':{cal:39,pro:0.7,fat:0.1,carb:9.3,ca:28,fe:0.2,vc:4,read:'にんじん'},
+  'ねぎ（スープ用）':{cal:30,pro:1.4,fat:0.1,carb:7.2,ca:36,fe:0.3,vc:15,read:'ねぎ'},
+  '大根（スープ用）':{cal:18,pro:0.5,fat:0.1,carb:4.1,ca:24,fe:0.2,vc:12,read:'だいこん'},
+  'ほうれん草（スープ用）':{cal:20,pro:2.2,fat:0.4,carb:3.1,ca:49,fe:2.0,vc:35,read:'ほうれんそう'},
+  'えのき':{cal:34,pro:2.7,fat:0.2,carb:7.4,ca:2,fe:1.1,vc:0,read:'えのき'},
+  'しめじ':{cal:18,pro:2.7,fat:0.5,carb:4.8,ca:3,fe:0.5,vc:0,read:'しめじ'},
+  '麩（スープ用）':{cal:375,pro:28.7,fat:2.7,carb:58.4,ca:40,fe:4.5,vc:0,read:'ふ'},
+  '油揚げ（スープ用）':{cal:377,pro:23.4,fat:34.4,carb:0,ca:310,fe:3.2,vc:0,read:'あぶらあげ'},
+  'キャベツ（スープ用）':{cal:23,pro:1.3,fat:0.2,carb:5.2,ca:43,fe:0.3,vc:41,read:'きゃべつ'},
+  'たまご（スープ用）':{cal:151,pro:12.3,fat:10.3,carb:0.3,ca:51,fe:1.8,vc:0,read:'たまご'},
+  // 貝・魚介類
+  'あさり':{cal:30,pro:6.0,fat:0.3,carb:1.8,ca:66,fe:3.8,vc:1,read:'あさり'},
+  'しじみ':{cal:64,pro:7.5,fat:1.4,carb:4.5,ca:240,fe:8.3,vc:0,read:'しじみ'},
+  'ほたて':{cal:72,pro:13.5,fat:0.9,carb:1.5,ca:22,fe:2.2,vc:3,read:'ほたて'},
+  'えび':{cal:98,pro:21.7,fat:0.6,carb:0.1,ca:67,fe:0.7,vc:0,read:'えび'},
+  'いか':{cal:88,pro:18.1,fat:1.2,carb:0.1,ca:11,fe:0.1,vc:1,read:'いか'},
+  'たこ':{cal:76,pro:16.4,fat:0.7,carb:0.1,ca:16,fe:0.6,vc:0,read:'たこ'},
+  'かに':{cal:65,pro:13.0,fat:0.4,carb:0.1,ca:90,fe:0.5,vc:1,read:'かに'},
+  'かつお':{cal:114,pro:25.8,fat:0.5,carb:0.1,ca:11,fe:1.9,vc:0,read:'かつお'},
+  'ぶり':{cal:257,pro:21.4,fat:17.6,carb:0.3,ca:5,fe:1.3,vc:2,read:'ぶり'},
+  'たら':{cal:77,pro:17.6,fat:0.2,carb:0.1,ca:32,fe:0.2,vc:1,read:'たら'},
+  'いわし':{cal:217,pro:19.8,fat:13.9,carb:0.2,ca:74,fe:2.1,vc:0,read:'いわし'},
+  'さんま':{cal:318,pro:18.5,fat:25.6,carb:0.1,ca:28,fe:1.4,vc:0,read:'さんま'},
+  'あじ':{cal:126,pro:19.7,fat:4.5,carb:0.1,ca:66,fe:0.6,vc:0,read:'あじ'},
+  'しらす干し':{cal:206,pro:40.5,fat:3.5,carb:0.1,ca:520,fe:2.4,vc:0,read:'しらす'},
+  'ちりめんじゃこ':{cal:206,pro:40.5,fat:3.5,carb:0.1,ca:520,fe:2.4,vc:0,read:'ちりめん'},
+  // 肉類追加
+  '豚ひき肉':{cal:221,pro:17.7,fat:17.2,carb:0,ca:8,fe:1.0,vc:1,read:'ぶたひきにく'},
+  '鶏ひき肉':{cal:186,pro:17.5,fat:12.0,carb:0,ca:8,fe:0.7,vc:0,read:'とりひきにく'},
+  '牛ひき肉':{cal:272,pro:17.1,fat:21.1,carb:0.3,ca:6,fe:2.2,vc:1,read:'ぎゅうひきにく'},
+  '豚レバー':{cal:128,pro:20.4,fat:3.4,carb:2.5,ca:5,fe:13.0,vc:20,read:'ぶたればー'},
+  '鶏レバー':{cal:111,pro:18.9,fat:3.1,carb:0.6,ca:8,fe:9.0,vc:20,read:'とりればー'},
+  'ベーコン':{cal:405,pro:12.9,fat:39.1,carb:0.3,ca:5,fe:0.5,vc:10,read:'べーこん'},
+  'ウインナー':{cal:321,pro:11.5,fat:30.6,carb:3.0,ca:10,fe:0.9,vc:10,read:'ういんなー'},
+  'ハム':{cal:211,pro:16.5,fat:16.0,carb:1.3,ca:7,fe:0.9,vc:50,read:'はむ'},
+  // 野菜追加
+  'ごぼう':{cal:65,pro:1.8,fat:0.1,carb:15.4,ca:46,fe:0.7,vc:3,read:'ごぼう'},
+  '玉ねぎ':{cal:37,pro:1.0,fat:0.1,carb:8.8,ca:17,fe:0.2,vc:8,read:'たまねぎ'},
+  'ピーマン':{cal:22,pro:0.9,fat:0.2,carb:5.1,ca:11,fe:0.4,vc:76,read:'ぴーまん'},
+  'なす':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'なす'},
+  'かぼちゃ':{cal:91,pro:1.9,fat:0.3,carb:20.6,ca:15,fe:0.5,vc:43,read:'かぼちゃ'},
+  'もやし':{cal:14,pro:1.7,fat:0.1,carb:2.6,ca:10,fe:0.3,vc:8,read:'もやし'},
+  'チンゲン菜':{cal:9,pro:0.6,fat:0.1,carb:2.0,ca:100,fe:1.1,vc:24,read:'ちんげんさい'},
+  'セロリ':{cal:15,pro:0.4,fat:0.1,carb:3.6,ca:39,fe:0.2,vc:7,read:'せろり'},
+  'パプリカ（赤）':{cal:30,pro:1.0,fat:0.2,carb:7.2,ca:7,fe:0.4,vc:170,read:'ぱぷりか'},
+  'とうもろこし':{cal:99,pro:3.6,fat:1.7,carb:18.6,ca:3,fe:0.8,vc:8,read:'とうもろこし'},
+  'オクラ':{cal:30,pro:2.1,fat:0.2,carb:6.6,ca:92,fe:0.5,vc:11,read:'おくら'},
+  'アスパラガス':{cal:22,pro:2.6,fat:0.2,carb:3.9,ca:19,fe:0.7,vc:15,read:'あすぱら'},
+  'さといも':{cal:58,pro:1.5,fat:0.1,carb:13.1,ca:10,fe:0.5,vc:6,read:'さといも'},
+  '山芋':{cal:65,pro:2.2,fat:0.3,carb:13.9,ca:17,fe:0.4,vc:6,read:'やまいも'},
+  // 豆・大豆製品追加
+  '油揚げ':{cal:377,pro:23.4,fat:34.4,carb:0,ca:310,fe:3.2,vc:0,read:'あぶらあげ'},
+  '高野豆腐':{cal:529,pro:50.5,fat:34.1,carb:1.7,ca:630,fe:7.5,vc:0,read:'こうやどうふ'},
+  '豆乳（無調整）':{cal:46,pro:3.6,fat:2.0,carb:3.1,ca:15,fe:1.2,vc:0,read:'とうにゅう'},
+  '大豆（水煮）':{cal:140,pro:12.9,fat:6.7,carb:8.7,ca:70,fe:1.9,vc:0,read:'だいず'},
+  'あずき（ゆで）':{cal:143,pro:8.9,fat:1.0,carb:25.6,ca:27,fe:1.5,vc:0,read:'あずき'},
+  // 乳製品・卵追加
+  '生クリーム':{cal:433,pro:2.0,fat:45.0,carb:3.1,ca:60,fe:0.1,vc:1,read:'なまくりーむ'},
+  'バター':{cal:745,pro:0.5,fat:81.0,carb:0.2,ca:15,fe:0.1,vc:0,read:'ばたー'},
+  'スキムミルク':{cal:359,pro:34.0,fat:1.0,carb:53.3,ca:1100,fe:0.5,vc:3,read:'すきむみるく'},
+  // 穀物・主食追加
+  'そば（ゆで）':{cal:132,pro:4.8,fat:1.0,carb:26.0,ca:9,fe:0.8,vc:0,read:'そば'},
+  'うどん（ゆで）':{cal:105,pro:2.6,fat:0.4,carb:21.6,ca:9,fe:0.3,vc:0,read:'うどん'},
+  'ラーメン（中華麺）':{cal:149,pro:5.2,fat:0.6,carb:29.2,ca:19,fe:0.5,vc:0,read:'らーめん'},
+  'もち':{cal:235,pro:4.0,fat:0.5,carb:50.8,ca:4,fe:0.2,vc:0,read:'もち'},
+  'コーンフレーク':{cal:381,pro:8.1,fat:1.7,carb:81.8,ca:3,fe:3.5,vc:0,read:'こーんふれーく'},
+  'シリアル':{cal:380,pro:8.0,fat:5.0,carb:75.0,ca:50,fe:5.0,vc:10,read:'しりある'},
+  // 海藻・乾物追加
+  'ひじき（乾燥）':{cal:180,pro:9.2,fat:3.2,carb:51.8,ca:1400,fe:55.0,vc:0,read:'ひじきかんそう'},
+  'のり（焼き）':{cal:188,pro:41.4,fat:3.7,carb:44.3,ca:280,fe:11.4,vc:210,read:'のり'},
+  '切り干し大根':{cal:279,pro:9.7,fat:0.8,carb:69.7,ca:500,fe:9.7,vc:17,read:'きりぼしだいこん'},
+  '昆布':{cal:145,pro:8.2,fat:1.2,carb:61.5,ca:710,fe:3.9,vc:25,read:'こんぶ'},
+  // きのこ追加
+  '干ししいたけ':{cal:258,pro:19.3,fat:3.7,carb:63.9,ca:13,fe:3.3,vc:14,read:'ほししいたけ'},
+  '生しいたけ':{cal:34,pro:3.0,fat:0.4,carb:6.4,ca:4,fe:0.5,vc:13,read:'しいたけ'},
+  'エリンギ':{cal:31,pro:2.8,fat:0.4,carb:6.0,ca:1,fe:0.4,vc:0,read:'えりんぎ'},
+  'まいたけ':{cal:22,pro:2.0,fat:0.5,carb:4.4,ca:3,fe:0.2,vc:0,read:'まいたけ'},
+  // 果物追加
+  'もも':{cal:40,pro:0.6,fat:0.1,carb:10.2,ca:4,fe:0.1,vc:8,read:'もも'},
+  'なし':{cal:43,pro:0.3,fat:0.1,carb:11.3,ca:2,fe:0,vc:5,read:'なし'},
+  'メロン':{cal:42,pro:1.0,fat:0.1,carb:9.9,ca:6,fe:0.2,vc:25,read:'めろん'},
+  'すいか':{cal:37,pro:0.6,fat:0.1,carb:9.2,ca:4,fe:0.2,vc:10,read:'すいか'},
+  'パイナップル':{cal:54,pro:0.6,fat:0.1,carb:13.7,ca:11,fe:0.3,vc:35,read:'ぱいなっぷる'},
+  'マンゴー':{cal:68,pro:0.6,fat:0.1,carb:17.1,ca:15,fe:0.2,vc:20,read:'まんごー'},
+  'さくらんぼ':{cal:66,pro:1.0,fat:0.2,carb:15.2,ca:13,fe:0.3,vc:10,read:'さくらんぼ'},
+  'プルーン':{cal:49,pro:0.7,fat:0.1,carb:12.6,ca:6,fe:0.2,vc:4,read:'ぷるーん'},
+  // 調味料・その他
+  '味噌':{cal:217,pro:12.5,fat:6.0,carb:21.9,ca:100,fe:4.0,vc:0,read:'みそ'},
+  'ごま':{cal:599,pro:20.3,fat:54.2,carb:16.5,ca:1200,fe:9.9,vc:0,read:'ごま'},
+  'ナッツ（ミックス）':{cal:617,pro:17.8,fat:56.0,carb:17.7,ca:75,fe:2.8,vc:0,read:'なっつ'},
+  'アーモンド':{cal:609,pro:18.6,fat:54.1,carb:18.3,ca:230,fe:3.6,vc:0,read:'あーもんど'},
+  // 加工食品
+  'ちくわ':{cal:119,pro:12.2,fat:2.0,carb:13.5,ca:15,fe:0.5,vc:0,read:'ちくわ'},
+  'かまぼこ':{cal:95,pro:12.0,fat:0.9,carb:9.7,ca:25,fe:0.3,vc:0,read:'かまぼこ'},
+  'さつま揚げ':{cal:139,pro:12.5,fat:3.7,carb:13.9,ca:60,fe:1.0,vc:0,read:'さつまあげ'},
+  'はんぺん':{cal:93,pro:9.9,fat:1.0,carb:11.4,ca:15,fe:0.3,vc:0,read:'はんぺん'},
+  'たくあん':{cal:65,pro:0.9,fat:0.1,carb:16.0,ca:18,fe:0.3,vc:0,read:'たくあん'},
+  'キムチ':{cal:46,pro:2.8,fat:0.5,carb:8.6,ca:55,fe:0.8,vc:15,read:'きむち'},
+  'ぬか漬け（きゅうり）':{cal:21,pro:1.8,fat:0.1,carb:3.8,ca:40,fe:0.5,vc:8,read:'ぬかづけ'},
+
+  // ===== 牛肉 =====
+  '牛カルビ':{cal:371,pro:14.4,fat:32.5,carb:0.1,ca:5,fe:1.5,vc:1,read:'ぎゅうかるび'},
+  '牛ロース':{cal:380,pro:13.8,fat:37.4,carb:0.2,ca:4,fe:1.3,vc:1,read:'ぎゅうろーす'},
+  '牛もも':{cal:182,pro:21.2,fat:10.7,carb:0.6,ca:4,fe:2.0,vc:1,read:'ぎゅうもも'},
+  '牛バラ':{cal:426,pro:11.0,fat:40.0,carb:0.1,ca:4,fe:1.2,vc:1,read:'ぎゅうばら'},
+  '牛肩ロース':{cal:290,pro:17.0,fat:24.0,carb:0.2,ca:4,fe:2.2,vc:1,read:'ぎゅうかたろーす'},
+  '牛すね肉':{cal:155,pro:21.8,fat:6.9,carb:0.5,ca:4,fe:2.8,vc:1,read:'ぎゅうすねにく'},
+  '牛タン':{cal:269,pro:15.2,fat:22.0,carb:0.2,ca:4,fe:2.5,vc:1,read:'ぎゅうたん'},
+  '牛ひれ':{cal:195,pro:20.5,fat:11.2,carb:0.3,ca:4,fe:2.5,vc:1,read:'ぎゅうひれ'},
+  '牛切り落とし':{cal:257,pro:17.1,fat:21.1,carb:0.3,ca:6,fe:2.2,vc:1,read:'ぎゅうきりおとし'},
+  'すき焼き用牛肉':{cal:310,pro:16.0,fat:26.0,carb:0.2,ca:4,fe:2.0,vc:1,read:'すきやきぎゅう'},
+  '焼肉用牛肉':{cal:340,pro:15.0,fat:28.5,carb:0.1,ca:4,fe:1.8,vc:1,read:'やきにくぎゅう'},
+
+  // ===== 豚肉（部位追加） =====
+  '豚肩ロース':{cal:216,pro:17.1,fat:16.0,carb:0.1,ca:4,fe:0.7,vc:1,read:'ぶたかたろーす'},
+  '豚もも':{cal:183,pro:20.5,fat:10.2,carb:0.2,ca:4,fe:0.8,vc:1,read:'ぶたもも'},
+  '豚ヒレ':{cal:115,pro:22.2,fat:3.7,carb:0.2,ca:4,fe:0.9,vc:1,read:'ぶたひれ'},
+  '豚スペアリブ':{cal:310,pro:17.5,fat:26.0,carb:0.1,ca:20,fe:0.8,vc:1,read:'すぺありぶ'},
+  '豚なんこつ':{cal:150,pro:12.5,fat:10.5,carb:0,ca:70,fe:0.5,vc:0,read:'ぶたなんこつ'},
+  '豚こま切れ':{cal:230,pro:18.0,fat:17.5,carb:0.2,ca:4,fe:0.7,vc:1,read:'ぶたこまぎれ'},
+  '豚しゃぶしゃぶ':{cal:183,pro:20.5,fat:10.2,carb:0.2,ca:4,fe:0.8,vc:1,read:'ぶたしゃぶ'},
+
+  // ===== 鶏肉（部位追加） =====
+  '鶏もも肉':{cal:190,pro:16.6,fat:14.2,carb:0,ca:5,fe:0.5,vc:0,read:'とりもも'},
+  '鶏むね肉':{cal:108,pro:22.3,fat:1.5,carb:0,ca:4,fe:0.3,vc:0,read:'とりむね'},
+  '鶏ささみ':{cal:98,pro:23.0,fat:0.8,carb:0,ca:4,fe:0.3,vc:3,read:'とりささみ'},
+  '鶏手羽元':{cal:175,pro:18.2,fat:12.8,carb:0,ca:10,fe:0.5,vc:0,read:'とりてばもと'},
+  '鶏手羽先':{cal:211,pro:17.4,fat:16.2,carb:0,ca:17,fe:0.6,vc:0,read:'とりてばさき'},
+  '鶏ひき肉':{cal:186,pro:17.5,fat:12.0,carb:0,ca:8,fe:0.7,vc:0,read:'とりひきにく'},
+  '鶏皮':{cal:492,pro:9.4,fat:51.6,carb:0,ca:3,fe:0.4,vc:0,read:'とりかわ'},
+  '焼き鳥（もも）':{cal:177,pro:17.5,fat:11.5,carb:0.5,ca:8,fe:0.6,vc:0,read:'やきとりもも'},
+  '焼き鳥（ねぎま）':{cal:160,pro:17.0,fat:9.5,carb:2.0,ca:8,fe:0.5,vc:3,read:'やきとりねぎま'},
+
+  // ===== 魚（追加） =====
+  'きんめだい':{cal:160,pro:17.8,fat:9.0,carb:0.1,ca:30,fe:0.3,vc:1,read:'きんめだい'},
+  'めかじき':{cal:139,pro:19.2,fat:7.6,carb:0.1,ca:5,fe:0.5,vc:0,read:'めかじき'},
+  'ししゃも':{cal:166,pro:15.6,fat:9.7,carb:0.2,ca:330,fe:1.0,vc:1,read:'ししゃも'},
+  'はまち':{cal:257,pro:21.0,fat:17.6,carb:0.3,ca:5,fe:1.3,vc:2,read:'はまち'},
+  'ひらめ':{cal:103,pro:20.0,fat:2.0,carb:0.1,ca:22,fe:0.2,vc:1,read:'ひらめ'},
+  'かれい':{cal:89,pro:19.6,fat:1.3,carb:0.1,ca:43,fe:0.2,vc:1,read:'かれい'},
+  'たい（鯛）':{cal:142,pro:20.6,fat:5.8,carb:0.1,ca:11,fe:0.2,vc:1,read:'たい'},
+  '銀鮭':{cal:204,pro:19.7,fat:12.8,carb:0.1,ca:14,fe:0.5,vc:0,read:'ぎんざけ'},
+  'うなぎ蒲焼き':{cal:293,pro:23.0,fat:21.0,carb:3.1,ca:150,fe:0.8,vc:0,read:'うなぎかばやき'},
+  'さわら':{cal:177,pro:20.1,fat:9.7,carb:0.1,ca:13,fe:1.0,vc:0,read:'さわら'},
+  '干物（あじ）':{cal:168,pro:24.6,fat:8.8,carb:0.1,ca:100,fe:1.0,vc:0,read:'ひものあじ'},
+  '明太子':{cal:126,pro:21.0,fat:3.3,carb:3.4,ca:20,fe:0.6,vc:3,read:'めんたいこ'},
+  'たらこ':{cal:140,pro:24.0,fat:4.0,carb:1.7,ca:24,fe:0.4,vc:0,read:'たらこ'},
+  'いくら':{cal:272,pro:32.6,fat:15.6,carb:0.2,ca:94,fe:2.0,vc:0,read:'いくら'},
+  'サーモン刺身':{cal:138,pro:20.1,fat:5.7,carb:0.1,ca:14,fe:0.4,vc:0,read:'さーもんさしみ'},
+  'まぐろ赤身刺身':{cal:125,pro:26.4,fat:1.4,carb:0.1,ca:5,fe:1.1,vc:0,read:'まぐろさしみ'},
+
+  // ===== 貝・海鮮（追加） =====
+  'かき（牡蠣）':{cal:60,pro:6.9,fat:2.2,carb:4.9,ca:84,fe:2.1,vc:3,read:'かき'},
+  'はまぐり':{cal:38,pro:6.1,fat:0.6,carb:2.2,ca:130,fe:5.4,vc:0,read:'はまぐり'},
+  'さざえ':{cal:89,pro:19.4,fat:0.4,carb:0.8,ca:22,fe:1.2,vc:0,read:'さざえ'},
+  'あわび':{cal:73,pro:12.7,fat:0.3,carb:3.5,ca:30,fe:1.5,vc:0,read:'あわび'},
+  'ずわいがに':{cal:63,pro:13.5,fat:0.4,carb:0.1,ca:90,fe:0.5,vc:1,read:'ずわいがに'},
+  'いかそうめん':{cal:88,pro:18.1,fat:1.2,carb:0.1,ca:11,fe:0.1,vc:1,read:'いかそうめん'},
+  'タコのさしみ':{cal:76,pro:16.4,fat:0.7,carb:0.1,ca:16,fe:0.6,vc:0,read:'たこさしみ'},
+  'えび天ぷら':{cal:170,pro:14.0,fat:8.5,carb:10.0,ca:80,fe:0.8,vc:0,read:'えびてんぷら'},
+
+  // ===== 料理（追加） =====
+  '牛丼':{cal:580,pro:22,fat:18,carb:78,ca:40,fe:2.5,vc:3,read:'ぎゅうどん'},
+  '牛焼肉':{cal:340,pro:18,fat:25,carb:5,ca:5,fe:2.0,vc:1,read:'ぎゅうやきにく'},
+  'ビーフシチュー':{cal:280,pro:16,fat:14,carb:24,ca:40,fe:2.5,vc:8,read:'びーふしちゅー'},
+  'ステーキ':{cal:295,pro:22,fat:21,carb:1,ca:5,fe:2.2,vc:1,read:'すてーき'},
+  'すき焼き':{cal:320,pro:18,fat:19,carb:18,ca:50,fe:2.5,vc:5,read:'すきやき'},
+  'しゃぶしゃぶ':{cal:220,pro:18,fat:14,carb:5,ca:30,fe:1.8,vc:3,read:'しゃぶしゃぶ'},
+  '焼肉（ミックス）':{cal:350,pro:20,fat:27,carb:3,ca:10,fe:2.0,vc:1,read:'やきにく'},
+  '豚汁':{cal:120,pro:7,fat:5,carb:12,ca:40,fe:1.0,vc:5,read:'とんじる'},
+  '酢豚':{cal:220,pro:14,fat:10,carb:20,ca:25,fe:1.2,vc:15,read:'すぶた'},
+  'ロールキャベツ':{cal:180,pro:12,fat:10,carb:14,ca:50,fe:1.5,vc:20,read:'ろーるきゃべつ'},
+  'チキンソテー':{cal:220,pro:20,fat:14,carb:2,ca:8,fe:0.6,vc:0,read:'ちきんそて'},
+  '煮魚':{cal:130,pro:18,fat:4,carb:8,ca:30,fe:0.8,vc:2,read:'にざかな'},
+  '天ぷら盛り合わせ':{cal:280,pro:12,fat:16,carb:24,ca:80,fe:1.0,vc:8,read:'てんぷら'},
+  'お刺身盛り合わせ':{cal:115,pro:22,fat:2.5,carb:0.2,ca:15,fe:1.0,vc:1,read:'おさしみ'},
+  'からあげ定食':{cal:650,pro:30,fat:22,carb:78,ca:40,fe:1.5,vc:5,read:'からあげていしょく'},
+  '焼き魚定食':{cal:480,pro:28,fat:8,carb:65,ca:50,fe:1.5,vc:5,read:'やきざかなていしょく'},
+  
+  // ===== 野菜（さらに追加） =====
+  'ズッキーニ':{cal:14,pro:1.3,fat:0.1,carb:2.8,ca:24,fe:0.5,vc:20,read:'ずっきーに'},
+  'かぶ':{cal:20,pro:0.7,fat:0.1,carb:4.6,ca:24,fe:0.3,vc:19,read:'かぶ'},
+  'ごま（白）':{cal:599,pro:20.3,fat:54.2,carb:16.5,ca:1200,fe:9.9,vc:0,read:'しろごま'},
+  'にら':{cal:21,pro:1.7,fat:0.3,carb:4.0,ca:48,fe:0.7,vc:19,read:'にら'},
+  'みつば':{cal:13,pro:0.8,fat:0.1,carb:3.1,ca:47,fe:0.9,vc:13,read:'みつば'},
+  'しそ（大葉）':{cal:37,pro:3.9,fat:0.1,carb:7.2,ca:230,fe:1.7,vc:26,read:'しそ'},
+  'しょうが':{cal:30,pro:0.9,fat:0.3,carb:6.6,ca:12,fe:0.5,vc:2,read:'しょうが'},
+  'にんにく':{cal:134,pro:6.4,fat:0.9,carb:27.5,ca:14,fe:0.8,vc:12,read:'にんにく'},
+  'ねぎ（青ねぎ）':{cal:33,pro:1.9,fat:0.1,carb:7.5,ca:54,fe:1.0,vc:44,read:'あおねぎ'},
+  'わさび':{cal:88,pro:5.0,fat:0.2,carb:20.7,ca:100,fe:0.8,vc:80,read:'わさび'},
+
+  // ===== 定番野菜（スーパーの野菜コーナー全網羅） =====
+  'レタス':{cal:12,pro:0.6,fat:0.1,carb:2.8,ca:19,fe:0.3,vc:5,read:'れたす'},
+  'サニーレタス':{cal:16,pro:1.2,fat:0.2,carb:2.8,ca:66,fe:1.8,vc:20,read:'さにーれたす'},
+  'グリーンリーフ':{cal:16,pro:1.2,fat:0.2,carb:2.8,ca:58,fe:1.5,vc:18,read:'ぐりーんりーふ'},
+  'サラダほうれん草':{cal:16,pro:1.5,fat:0.3,carb:3.0,ca:45,fe:1.5,vc:28,read:'さらだほうれんそう'},
+  'サラダ菜':{cal:14,pro:1.0,fat:0.2,carb:2.6,ca:56,fe:0.7,vc:22,read:'さらだな'},
+  'ルッコラ':{cal:19,pro:1.6,fat:0.4,carb:3.1,ca:160,fe:1.6,vc:66,read:'るっこら'},
+  'ベビーリーフ':{cal:20,pro:1.8,fat:0.5,carb:3.1,ca:100,fe:1.5,vc:40,read:'べびーりーふ'},
+  '水菜':{cal:23,pro:2.2,fat:0.1,carb:4.8,ca:210,fe:2.1,vc:55,read:'みずな'},
+  '春菊':{cal:22,pro:2.3,fat:0.3,carb:3.9,ca:120,fe:1.7,vc:19,read:'しゅんぎく'},
+  'セロリ':{cal:15,pro:0.4,fat:0.1,carb:3.6,ca:39,fe:0.2,vc:7,read:'せろり'},
+  'パセリ':{cal:44,pro:3.7,fat:0.7,carb:8.2,ca:290,fe:7.5,vc:200,read:'ぱせり'},
+  'クレソン':{cal:13,pro:2.1,fat:0.1,carb:1.7,ca:110,fe:1.1,vc:26,read:'くれそん'},
+  'ほうれん草（生）':{cal:20,pro:2.2,fat:0.4,carb:3.1,ca:49,fe:2.0,vc:35,read:'ほうれんそうなま'},
+  'キャベツ（生）':{cal:23,pro:1.3,fat:0.2,carb:5.2,ca:43,fe:0.3,vc:41,read:'きゃべつなま'},
+  'はくさい（白菜）':{cal:14,pro:0.8,fat:0.1,carb:3.2,ca:43,fe:0.3,vc:19,read:'はくさい'},
+  'こまつな（生）':{cal:14,pro:1.5,fat:0.2,carb:2.4,ca:170,fe:2.8,vc:39,read:'こまつなま'},
+  'チンゲン菜（生）':{cal:9,pro:0.6,fat:0.1,carb:2.0,ca:100,fe:1.1,vc:24,read:'ちんげんさいなま'},
+  'もやし（豆もやし）':{cal:37,pro:3.7,fat:1.5,carb:4.2,ca:60,fe:1.2,vc:5,read:'まめもやし'},
+  'もやし（緑豆）':{cal:14,pro:1.7,fat:0.1,carb:2.6,ca:10,fe:0.3,vc:8,read:'りょくとうもやし'},
+  'きゅうり（生）':{cal:14,pro:1.0,fat:0.1,carb:3.0,ca:26,fe:0.3,vc:14,read:'きゅうりなま'},
+  'なす（生）':{cal:22,pro:1.1,fat:0.1,carb:5.1,ca:18,fe:0.3,vc:4,read:'なすなま'},
+  'トマト（生）':{cal:19,pro:0.7,fat:0.1,carb:4.7,ca:7,fe:0.2,vc:15,read:'とまとなま'},
+  'ミニトマト':{cal:30,pro:1.1,fat:0.1,carb:7.2,ca:12,fe:0.4,vc:32,read:'みにとまと'},
+  'ピーマン（生）':{cal:22,pro:0.9,fat:0.2,carb:5.1,ca:11,fe:0.4,vc:76,read:'ぴーまんなま'},
+  'パプリカ（赤）':{cal:30,pro:1.0,fat:0.2,carb:7.2,ca:7,fe:0.4,vc:170,read:'あかぱぷりか'},
+  'パプリカ（黄）':{cal:27,pro:0.8,fat:0.2,carb:6.6,ca:8,fe:0.3,vc:150,read:'きぱぷりか'},
+  'オクラ（生）':{cal:30,pro:2.1,fat:0.2,carb:6.6,ca:92,fe:0.5,vc:11,read:'おくらなま'},
+  'ゴーヤ（にがうり）':{cal:17,pro:1.0,fat:0.1,carb:3.9,ca:14,fe:0.4,vc:76,read:'ごーや'},
+  'アスパラガス':{cal:22,pro:2.6,fat:0.2,carb:3.9,ca:19,fe:0.7,vc:15,read:'あすぱら'},
+  'ブロッコリー（生）':{cal:33,pro:4.3,fat:0.5,carb:6.6,ca:38,fe:1.0,vc:120,read:'ぶろっこりーなま'},
+  'カリフラワー':{cal:27,pro:3.0,fat:0.1,carb:5.2,ca:24,fe:0.6,vc:81,read:'かりふらわー'},
+  'にんじん（生）':{cal:39,pro:0.7,fat:0.1,carb:9.3,ca:28,fe:0.2,vc:4,read:'にんじんなま'},
+  'だいこん（生）':{cal:18,pro:0.5,fat:0.1,carb:4.1,ca:24,fe:0.2,vc:12,read:'だいこんなま'},
+  'かぶ（生）':{cal:20,pro:0.7,fat:0.1,carb:4.6,ca:24,fe:0.3,vc:19,read:'かぶなま'},
+  'れんこん（生）':{cal:66,pro:1.9,fat:0.1,carb:15.5,ca:20,fe:0.5,vc:48,read:'れんこんなま'},
+  'ごぼう（生）':{cal:65,pro:1.8,fat:0.1,carb:15.4,ca:46,fe:0.7,vc:3,read:'ごぼうなま'},
+  'さつまいも（生）':{cal:132,pro:1.2,fat:0.2,carb:31.9,ca:36,fe:0.6,vc:29,read:'さつまいもなま'},
+  'じゃがいも（生）':{cal:76,pro:1.6,fat:0.1,carb:17.6,ca:4,fe:0.4,vc:28,read:'じゃがいもなま'},
+  'さといも（生）':{cal:58,pro:1.5,fat:0.1,carb:13.1,ca:10,fe:0.5,vc:6,read:'さといもなま'},
+  'やまいも（長芋）':{cal:65,pro:2.2,fat:0.3,carb:13.9,ca:17,fe:0.4,vc:6,read:'ながいも'},
+  'かぼちゃ（生）':{cal:91,pro:1.9,fat:0.3,carb:20.6,ca:15,fe:0.5,vc:43,read:'かぼちゃなま'},
+  'とうもろこし（生）':{cal:99,pro:3.6,fat:1.7,carb:18.6,ca:3,fe:0.8,vc:8,read:'とうもろこしなま'},
+  'たまねぎ（生）':{cal:37,pro:1.0,fat:0.1,carb:8.8,ca:17,fe:0.2,vc:8,read:'たまねぎなま'},
+  'ねぎ（白ねぎ）':{cal:28,pro:1.4,fat:0.1,carb:6.5,ca:36,fe:0.3,vc:11,read:'しろねぎ'},
+  'にら（生）':{cal:21,pro:1.7,fat:0.3,carb:4.0,ca:48,fe:0.7,vc:19,read:'にらなま'},
+  'しょうが（生）':{cal:30,pro:0.9,fat:0.3,carb:6.6,ca:12,fe:0.5,vc:2,read:'しょうがなま'},
+  'にんにく（生）':{cal:134,pro:6.4,fat:0.9,carb:27.5,ca:14,fe:0.8,vc:12,read:'にんにくなま'},
+  'しそ（大葉）':{cal:37,pro:3.9,fat:0.1,carb:7.2,ca:230,fe:1.7,vc:26,read:'おおば'},
+  'みょうが':{cal:12,pro:0.9,fat:0.1,carb:2.6,ca:25,fe:0.5,vc:2,read:'みょうが'},
+  'アボカド（生）':{cal:187,pro:2.1,fat:18.7,carb:6.2,ca:9,fe:0.7,vc:15,read:'あぼかどなま'},
+  'ズッキーニ（生）':{cal:14,pro:1.3,fat:0.1,carb:2.8,ca:24,fe:0.5,vc:20,read:'ずっきーになま'},
+  'エダマメ（生）':{cal:135,pro:11.5,fat:6.1,carb:8.8,ca:76,fe:2.7,vc:27,read:'えだまめなま'},
+  'いんげん豆（さや）':{cal:26,pro:1.8,fat:0.1,carb:5.8,ca:48,fe:0.7,vc:8,read:'いんげん'},
+  'そら豆':{cal:108,pro:10.9,fat:0.2,carb:16.9,ca:22,fe:2.1,vc:23,read:'そらまめ'},
+  'グリーンピース':{cal:93,pro:6.9,fat:0.4,carb:15.3,ca:23,fe:1.7,vc:16,read:'ぐりーんぴーす'},
+  // きのこ追加
+  'ぶなしめじ':{cal:18,pro:2.7,fat:0.5,carb:4.8,ca:3,fe:0.5,vc:0,read:'ぶなしめじ'},
+  'まいたけ（生）':{cal:22,pro:2.0,fat:0.5,carb:4.4,ca:3,fe:0.2,vc:0,read:'まいたけ'},
+  'エリンギ（生）':{cal:31,pro:2.8,fat:0.4,carb:6.0,ca:1,fe:0.4,vc:0,read:'えりんぎ'},
+  'なめこ（生）':{cal:15,pro:1.7,fat:0.5,carb:5.4,ca:4,fe:0.7,vc:0,read:'なめこなま'},
+  'しいたけ（生）':{cal:34,pro:3.0,fat:0.4,carb:6.4,ca:4,fe:0.5,vc:13,read:'しいたけなま'},
+  'えのきたけ':{cal:34,pro:2.7,fat:0.2,carb:7.4,ca:2,fe:1.1,vc:0,read:'えのきたけ'},
+  // デザート・甘いもの
+  'フルーツヨーグルト':{cal:96,pro:3.5,fat:2.0,carb:16.0,ca:110,fe:0.1,vc:5,read:'ふるーつよーぐると'},
+  'ミックスフルーツ缶':{cal:64,pro:0.4,fat:0.1,carb:16.0,ca:5,fe:0.2,vc:10,read:'みっくすふるーつかん'},
+  'カステラ':{cal:319,pro:7.1,fat:5.4,carb:63.0,ca:27,fe:0.8,vc:0,read:'かすてら'},
+  '蒸しパン':{cal:281,pro:6.0,fat:4.5,carb:55.0,ca:55,fe:0.7,vc:0,read:'むしぱん'},
+  'どら焼き':{cal:282,pro:6.5,fat:4.2,carb:57.0,ca:30,fe:1.0,vc:0,read:'どらやき'},
+  'おにぎり（梅）':{cal:170,pro:3.0,fat:0.5,carb:37.0,ca:6,fe:0.3,vc:0,read:'おにぎりうめ'},
+  'クッキー':{cal:493,pro:6.5,fat:24.0,carb:65.0,ca:28,fe:1.0,vc:0,read:'くっきー'},
+  'ホットケーキ':{cal:261,pro:7.5,fat:5.0,carb:48.0,ca:120,fe:0.8,vc:0,read:'ほっとけーき'},
+  'ゼリー（果汁）':{cal:54,pro:1.5,fat:0.0,carb:12.5,ca:5,fe:0.1,vc:5,read:'ぜりー'},
+  'プリン':{cal:126,pro:5.0,fat:5.5,carb:15.0,ca:80,fe:0.5,vc:1,read:'ぷりん'},
+  'チョコレート':{cal:558,pro:6.6,fat:34.0,carb:55.0,ca:74,fe:2.4,vc:0,read:'ちょこれーと'},
+  'グラノーラ':{cal:429,pro:8.5,fat:14.0,carb:68.0,ca:35,fe:3.5,vc:0,read:'ぐらのーら'},
+  'アイスクリーム':{cal:212,pro:3.5,fat:12.0,carb:23.0,ca:110,fe:0.1,vc:1,read:'あいすくりーむ'},
+  'ショートケーキ':{cal:344,pro:5.5,fat:18.0,carb:42.0,ca:50,fe:0.5,vc:2,read:'しょーとけーき'},
+  'シュークリーム':{cal:228,pro:6.0,fat:13.0,carb:23.0,ca:70,fe:0.5,vc:1,read:'しゅーくりーむ'},
+  'おはぎ':{cal:235,pro:5.5,fat:2.0,carb:50.0,ca:25,fe:1.0,vc:0,read:'おはぎ'},
+  '大福':{cal:235,pro:4.5,fat:0.8,carb:52.0,ca:10,fe:0.5,vc:0,read:'だいふく'},
+  'みたらし団子':{cal:195,pro:3.0,fat:0.5,carb:45.0,ca:5,fe:0.3,vc:0,read:'みたらしだんご'},
+  'わらびもち':{cal:100,pro:0.2,fat:0.1,carb:25.0,ca:5,fe:0.1,vc:0,read:'わらびもち'},
+};
+
+// 文部科学省 学校給食摂取基準（年齢別）
+// 参考：令和3年文部科学省告示 学校給食摂取基準
+const LUNCH_BY_AGE={
+  // 小学校低学年（6〜7歳）
+  6:{cal:530,pro:20,fat:16,carb:70,ca:290,fe:2.5,vc:20},
+  7:{cal:530,pro:20,fat:16,carb:70,ca:290,fe:2.5,vc:20},
+  // 小学校中学年（8〜9歳）
+  8:{cal:640,pro:26,fat:18,carb:85,ca:300,fe:3.0,vc:25},
+  9:{cal:640,pro:26,fat:18,carb:85,ca:300,fe:3.0,vc:25},
+  // 小学校高学年（10〜11歳）
+  10:{cal:750,pro:30,fat:22,carb:100,ca:350,fe:3.5,vc:30},
+  11:{cal:750,pro:30,fat:22,carb:100,ca:350,fe:3.5,vc:30},
+  // 中学校（12〜14歳）
+  12:{cal:820,pro:33,fat:25,carb:110,ca:360,fe:4.0,vc:35},
+  13:{cal:820,pro:33,fat:25,carb:110,ca:360,fe:4.0,vc:35},
+  14:{cal:820,pro:33,fat:25,carb:110,ca:360,fe:4.0,vc:35},
+  // 高校相当（15〜17歳）
+  15:{cal:860,pro:35,fat:27,carb:115,ca:340,fe:4.0,vc:35},
+  16:{cal:860,pro:35,fat:27,carb:115,ca:340,fe:4.0,vc:35},
+  17:{cal:860,pro:35,fat:27,carb:115,ca:340,fe:4.0,vc:35},
+};
+// 年齢外はデフォルト値
+const LUNCH_DEFAULT={cal:640,pro:26,fat:18,carb:85,ca:300,fe:3.0,vc:25};
+let LUNCH=LUNCH_DEFAULT;
+
+function getLunchByAge(age){
+  return LUNCH_BY_AGE[age]||LUNCH_DEFAULT;
+}
+
+function updateLunchCard(age){
+  const l=getLunchByAge(age);
+  document.getElementById('lunch-cal').textContent='約'+l.cal+'kcal';
+  document.getElementById('lunch-pro').textContent='約'+l.pro+'g';
+  document.getElementById('lunch-fat').textContent='約'+l.fat+'g';
+  document.getElementById('lunch-carb').textContent='約'+l.carb+'g';
+  document.getElementById('lunch-ca').textContent='約'+l.ca+'mg';
+  document.getElementById('lunch-fe').textContent='約'+l.fe+'mg';
+  document.getElementById('lunch-vc').textContent='約'+l.vc+'mg';
+  var gradeLabel;
+  if(age<=7) gradeLabel='小学校低学年（6〜7歳）';
+  else if(age<=9) gradeLabel='小学校中学年（8〜9歳）';
+  else if(age<=11) gradeLabel='小学校高学年（10〜11歳）';
+  else if(age<=14) gradeLabel='中学校（12〜14歳）';
+  else gradeLabel='高校相当（15〜17歳）';
+  document.getElementById('lunch-grade').textContent=gradeLabel+'の基準';
+}
+const foodNames=Object.keys(FOODS);
+const SOUP_TYPES=['味噌汁','中華スープ','コンソメスープ','豚汁','野菜スープ','ミネストローネ'];
+
+const PILL_COLORS={
+  'var(--purple)':{bg:'#F5EDE8',text:'#5C4033'},
+  'var(--teal)':{bg:'#EAF3F1',text:'#3A7070'},
+  '#5DCAA5':{bg:'#EEF3ED',text:'#4A6A45'},
+  'var(--blue)':{bg:'#EAF3F1',text:'#3A7070'},
+  'var(--pink)':{bg:'#F5EDE8',text:'#8B5040'},
+  'var(--gray)':{bg:'#F0EDE8',text:'#6A5A50'},
+  'soup':{bg:'#F5F0EB',text:'#7A6A60'},
+};
+
+
+// ===== 昼ごはん手入力カテゴリ =====
+let lunchMode = 'school'; // 'school' or 'manual'
+
+function setLunchMode(mode){
+  lunchMode = mode;
+  document.getElementById('lunchModeSchool').classList.toggle('active', mode==='school');
+  document.getElementById('lunchModeManual').classList.toggle('active', mode==='manual');
+  document.getElementById('lunchSchoolPanel').style.display = mode==='school'?'block':'none';
+  document.getElementById('lunchManualPanel').style.display = mode==='manual'?'block':'none';
+  calcGoals();
+  updateLiveBar();
+}
+
+function getLunchNutrients(){
+  if(lunchMode === 'school') return Object.assign({}, LUNCH);
+  return getMealN('lunch-cats', LUNCH_CATS);
+}
+
+const LUNCH_CATS=[
+  {id:'l-staple',label:'主食',color:'var(--gray)',multi:true,defaultG:150,gmax:800,gstep:50,
+   opts:['白ごはん','食パン','ロールパン','パスタ','うどん（ゆで）','そば（ゆで）','ラーメン（中華麺）','もち']},
+  {id:'l-main',label:'メイン',color:'var(--purple)',multi:true,defaultG:120,
+   opts:['鶏ハム','茹で鶏むね','茹で豚','鮭の塩焼き','サバの塩焼き','まぐろの刺身','ツナ缶','卵焼き','ゆで卵','とんかつ','唐揚げ','ハンバーグ','餃子','焼き魚（鮭）','アジフライ','ウインナー']},
+  {id:'l-veg',label:'副菜（野菜・豆腐・発酵食品）',color:'var(--teal)',multi:true,defaultG:80,
+   opts:['ほうれん草のおひたし','ブロッコリー蒸し','小松菜炒め','キャベツの千切り','トマト','きゅうり','大根サラダ','ひじきの煮物','冷奴','納豆','もずく酢']},
+  {id:'l-drink',label:'飲み物',color:'var(--blue)',multi:true,defaultG:200,
+   opts:['牛乳','豆乳','野菜ジュース','オレンジジュース','麦茶','りんごジュース','ビール（350ml）','ハイボール（350ml）','チューハイ・レモン（350ml）','日本酒（1合・180ml）','ワイン（グラス・120ml）','ノンアルコールビール（350ml）']},
+  {id:'l-dessert',label:'デザート',color:'var(--pink)',multi:true,defaultG:100,
+   opts:['バナナ','みかん','りんご','いちご','キウイ','ヨーグルト（プレーン）','フルーツヨーグルト','ゼリー（果汁）','プリン','カステラ']},
+  {id:'l-soup',label:'スープ（具材を3つまで）',color:'soup',isSoup:true,
+   opts:['なめこ','わかめ','豆腐（スープ用）','じゃがいも（スープ用）','にんじん（スープ用）','ねぎ（スープ用）','大根（スープ用）','えのき','たまご（スープ用）']},
+];
+
+const MORNING_CATS=[
+  {id:'m-staple',label:'主食',color:'var(--gray)',multi:true,defaultG:150,gmax:800,gstep:50,
+   opts:['白ごはん','食パン','ロールパン','フランスパン','オートミール','もち','コーンフレーク','シリアル','グラノーラ','うどん（ゆで）','そば（ゆで）']},
+  {id:'m-main',label:'メイン（肉・魚・卵）',color:'var(--purple)',multi:true,defaultG:100,
+   opts:['鶏ハム','茹で鶏むね','茹で豚','鮭の塩焼き','サバの塩焼き','まぐろの刺身','まぐろ赤身刺身','サーモン刺身','ツナ缶','卵焼き','ゆで卵','目玉焼き','スクランブルエッグ','ウインナー','ベーコン','ハム','しらす干し','ちりめんじゃこ','明太子','たらこ','干物（あじ）','ししゃも']},
+  {id:'m-veg',label:'副菜（野菜・豆腐・発酵食品）',color:'var(--teal)',multi:true,defaultG:80,
+   opts:['ほうれん草のおひたし','ブロッコリー蒸し','小松菜炒め','にんじんグラッセ','キャベツの千切り','トマト','プチトマト','きゅうり','アボカド','じゃがいもサラダ','納豆','木綿豆腐','絹ごし豆腐','もずく酢','厚揚げ','キムチ','ぬか漬け（きゅうり）']},
+  {id:'m-drink',label:'飲み物',color:'var(--blue)',multi:true,defaultG:200,
+   opts:['牛乳','豆乳','野菜ジュース','オレンジジュース','りんごジュース','麦茶','ほうじ茶']},
+  {id:'m-dessert',label:'デザート',color:'var(--pink)',multi:true,defaultG:100,
+   opts:['バナナ','みかん','りんご','いちご','キウイ','グレープフルーツ','ぶどう','もも','なし','メロン','すいか','パイナップル','マンゴー','ヨーグルト（プレーン）','フルーツヨーグルト','ミックスフルーツ缶','カステラ','蒸しパン','どら焼き','クッキー','ホットケーキ','ゼリー（果汁）','プリン','チョコレート','アイスクリーム','おはぎ','大福']},
+  {id:'m-soup',label:'スープ（具材を3つまで）',color:'soup',isSoup:true,
+   opts:['なめこ','わかめ','豆腐（スープ用）','じゃがいも（スープ用）','にんじん（スープ用）','ねぎ（スープ用）','大根（スープ用）','ほうれん草（スープ用）','えのき','しめじ','麩（スープ用）','キャベツ（スープ用）','たまご（スープ用）','油揚げ（スープ用）','あさり']},
+];
+
+const NIGHT_CATS=[
+  {id:'n-staple',label:'主食（ご飯）',color:'var(--gray)',multi:true,defaultG:200,gmax:800,gstep:50,
+   opts:['白ごはん','食パン','ロールパン','パスタ','うどん（ゆで）','そば（ゆで）','ラーメン（中華麺）','もち']},
+  {id:'n-main',label:'メイン料理',color:'var(--purple)',multi:true,defaultG:150,
+   opts:['とんかつ','唐揚げ','野菜炒め','カレーライス','シチュー','ハンバーグ','餃子','肉じゃが','豚の生姜焼き','鶏の照り焼き','焼き魚（鮭）','アジフライ','エビフライ','麻婆豆腐','オムライス','スパゲッティ','親子丼','ステーキ','牛焼肉','すき焼き','しゃぶしゃぶ','焼肉（ミックス）','ビーフシチュー','牛丼','酢豚','ロールキャベツ','チキンソテー','煮魚','天ぷら盛り合わせ','お刺身盛り合わせ','うなぎ蒲焼き','焼き鳥（もも）','焼き鳥（ねぎま）']},
+  {id:'n-veg',label:'副菜（野菜・豆腐・発酵食品）',color:'var(--teal)',multi:true,defaultG:80,
+   opts:['ほうれん草の胡麻和え','ブロッコリーのサラダ','きんぴらごぼう','キャベツの浅漬け','大根サラダ','切り干し大根煮','ひじきの煮物','れんこんのきんぴら','枝豆','小松菜炒め','冷奴','厚揚げの煮物','湯豆腐','納豆','もずく酢','キムチ']},
+  {id:'n-drink',label:'飲み物',color:'var(--blue)',multi:true,defaultG:200,
+   opts:['麦茶','ほうじ茶','牛乳','豆乳','野菜ジュース','オレンジジュース','ビール（350ml）','ビール（500ml）','発泡酒（350ml）','第三のビール（350ml）','ハイボール（350ml）','チューハイ・レモン（350ml）','チューハイ・ゼロ（350ml）','日本酒（1合・180ml）','焼酎（水割り・200ml）','ワイン（グラス・120ml）','赤ワイン（グラス・120ml）','白ワイン（グラス・120ml）','スパークリングワイン（120ml）','ウイスキー（シングル・30ml）','梅酒（100ml）','ノンアルコールビール（350ml）']},
+  {id:'n-dessert',label:'デザート',color:'var(--pink)',multi:true,defaultG:100,
+   opts:['バナナ','みかん','りんご','いちご','キウイ','ぶどう','もも','ヨーグルト（プレーン）','フルーツヨーグルト','ミックスフルーツ缶','カステラ','プリン','ゼリー（果汁）','アイスクリーム','おはぎ','大福']},
+  {id:'n-soup',label:'スープ（具材を3つまで）',color:'soup',isSoup:true,
+   opts:['なめこ','わかめ','豆腐（スープ用）','じゃがいも（スープ用）','にんじん（スープ用）','ねぎ（スープ用）','大根（スープ用）','ほうれん草（スープ用）','えのき','しめじ','麩（スープ用）','油揚げ（スープ用）','キャベツ（スープ用）','たまご（スープ用）','あさり']},
+];
+
+// ===== ゴール計算 =====
+let GOALS={total:2000,pro:60,fat:60,carb:270,ca:700,fe:8,vc:60};
+
+function calcGoals(){
+  const weight=+document.getElementById('weight').value||35;
+  const age=+document.getElementById('age').value||10;
+  const gender=document.getElementById('gender').value;
+  const act=+document.getElementById('activity').value||1.7;
+  const isAdult = age >= 18;
+
+  // 18歳以上は自動で昼ごはん入力モードに切替、給食ボタンを非表示
+  const schoolBtn = document.getElementById('lunchModeSchool');
+  if(schoolBtn) schoolBtn.style.display = isAdult ? 'none' : '';
+  if(isAdult && lunchMode === 'school') setLunchMode('manual');
+
+  // 身長入力があればそれを使う、なければ年齢から推定
+  const heightInput = +document.getElementById('height').value;
+  const height = heightInput || (gender==='male'
+    ? Math.min(175, Math.round(80 + age * 5.5))
+    : Math.min(163, Math.round(79 + age * 5.1)));
+
+  // Mifflin-St Jeor式（成人・子供共通で最も広く使われる）
+  const bmr=gender==='male'
+    ? (10*weight)+(6.25*height)-(5*age)+5
+    : (10*weight)+(6.25*height)-(5*age)-161;
+
+  // アスリート向け：高活動係数では成長期の追加分も考慮
+  // act >= 2.0 のときは体重あたり推定消費カロリーで補正
+  let total;
+  if(act>=2.2){
+    // 本格競技・アスリートはMETベース推定（より実態に近い）
+    // 安静時+運動消費+成長分
+    const restCal=Math.round(bmr*1.2); // 安静時代謝
+    const sportCal=act>=2.5
+      ? Math.round(weight*55) // 2部練レベル：体重×55kcal/kg
+      : Math.round(weight*50); // 毎日練習レベル：体重×50kcal/kg
+    total=Math.max(restCal, Math.round(bmr*act), sportCal);
+  } else {
+    total=Math.round(bmr*act);
+  }
+
+  // 年齢に応じた給食基準に更新
+  LUNCH=getLunchByAge(age);
+  updateLunchCard(age);
+
+  // アスリートはたんぱく質を多めに
+  const proPerKg=act>=2.2?2.2:act>=1.9?2.0:1.8;
+
+  // 厚生労働省 日本人の食事摂取基準2020に基づくカルシウム・鉄分・ビタミンC
+  var goalCa, goalFe, goalVc;
+  if(age < 12){
+    goalCa = 700; goalFe = gender==='male'?8:8; goalVc = 60;
+  } else if(age < 18){
+    goalCa = 1000; goalFe = gender==='male'?10:12; goalVc = 85;
+  } else if(age < 30){
+    goalCa = gender==='male'?800:650; goalFe = gender==='male'?7.5:10.5; goalVc = 100;
+  } else if(age < 50){
+    goalCa = gender==='male'?750:650; goalFe = gender==='male'?7.5:10.5; goalVc = 100;
+  } else if(age < 70){
+    goalCa = gender==='male'?750:650; goalFe = gender==='male'?7.5:11.0; goalVc = 100;
+  } else {
+    goalCa = gender==='male'?700:650; goalFe = gender==='male'?7.0:10.0; goalVc = 100;
+  }
+
+  GOALS={
+    total,
+    pro:Math.round(weight*proPerKg),
+    fat:Math.round((total*0.28)/9),
+    carb:Math.round((total*0.55)/4),
+    ca:goalCa,
+    fe:goalFe,
+    vc:goalVc,
+  };
+  var lunchCal=lunchMode==='school'?LUNCH.cal:getMealN('lunch-cats',LUNCH_CATS).cal;
+  const remaining=total-lunchCal;
+  const morning=Math.round(remaining*0.35);
+  const night=remaining-morning;
+  document.getElementById('morning-cal-target').textContent=morning+' kcal';
+  document.getElementById('night-cal-target').textContent=night+' kcal';
+  updateLiveBar();
+  return GOALS;
+}
+
+// ===== リアルタイム集計 =====
+function getAllNutrients(){
+  const ns={cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
+  var allBlocks=[...document.querySelectorAll('.cat-block')];
+  allBlocks.forEach(function(block){
+    if(block.dataset.isSoup){
+      var ings=block._ingContainer
+        ? [...block._ingContainer.querySelectorAll('.soup-ing')]
+        : [];
+      if(block._dispRefs&&!block._ingContainer){
+        block._dispRefs.forEach(function(d,i){
+          var food=d.dataset.food,g=parseFloat(block._gSelRefs[i].value)||0;
+          if(food&&FOODS[food]&&g){var f=FOODS[food],r=g/100;Object.keys(ns).forEach(function(k){ns[k]+=f[k]*r;});}
+        });
+      } else {
+        ings.forEach(function(ing){
+          var food=ing._disp?ing._disp.dataset.food:'';
+          var g=ing._gSel?parseFloat(ing._gSel.value)||0:0;
+          if(food&&FOODS[food]&&g){var f=FOODS[food],r=g/100;Object.keys(ns).forEach(function(k){ns[k]+=f[k]*r;});}
+        });
+      }
+    } else if(block._getItems){
+      block._getItems().forEach(function(item){
+        var food=item.food,g=item.g;
+        if(food&&FOODS[food]&&g){var f=FOODS[food],r=g/100;Object.keys(ns).forEach(function(k){ns[k]+=f[k]*r;});}
+      });
+    } else {
+      var disp=block.querySelector('.food-disp');
+      var gSel=block.querySelector('.g-sel');
+      if(!disp||!gSel)return;
+      var food=disp.dataset.food, g=parseFloat(gSel.value)||0;
+      if(food&&FOODS[food]&&g){var f=FOODS[food],r=g/100;Object.keys(ns).forEach(function(k){ns[k]+=f[k]*r;});}
+    }
+  });
+  // 昼ごはんを加算（給食 or 手入力）
+  var ln=getLunchNutrients();
+  Object.keys(ln).forEach(function(k){ns[k]=(ns[k]||0)+(ln[k]||0);});
+  return ns;
+}
+
+function pctColor(pct){
+  if(pct<50)return'#C97B5A';
+  if(pct<80)return'#C9A05A';
+  return'#7BA59E';
+}
+
+function updateLiveBar(){
+  const ns=getAllNutrients();
+  const calPct=Math.min(120,Math.round(ns.cal/GOALS.total*100));
+  const remaining=GOALS.total-Math.round(ns.cal);
+
+  document.getElementById('live-cal').innerHTML=`${Math.round(ns.cal).toLocaleString()} <span>kcal (${calPct}%)</span>`;
+  document.getElementById('live-cal').style.color=pctColor(calPct);
+
+  const remEl=document.getElementById('live-remaining');
+  if(remaining>0){
+    remEl.textContent=`あと ${remaining.toLocaleString()} kcal`;
+    remEl.style.color='#888';
+  } else {
+    remEl.textContent=`+${Math.abs(remaining).toLocaleString()} kcal 超過`;
+    remEl.style.color='#E24B4A';
+  }
+
+  document.getElementById('lv-pro').textContent=Math.round(ns.pro);
+  document.getElementById('lv-carb').textContent=Math.round(ns.carb);
+  document.getElementById('lv-fat').textContent=Math.round(ns.fat);
+  document.getElementById('lv-ca').textContent=Math.round(ns.ca);
+  document.getElementById('lv-fe').textContent=ns.fe.toFixed(1);
+  document.getElementById('lv-vc').textContent=Math.round(ns.vc);
+
+  // 詳細グリッド更新
+  const detail=[
+    {lbl:'たんぱく質',val:Math.round(ns.pro),unit:'g',goal:GOALS.pro,color:'#8B6F5E'},
+    {lbl:'炭水化物',val:Math.round(ns.carb),unit:'g',goal:GOALS.carb,color:'#1D9E75'},
+    {lbl:'脂質',val:Math.round(ns.fat),unit:'g',goal:GOALS.fat,color:'#EF9F27'},
+    {lbl:'カルシウム',val:Math.round(ns.ca),unit:'mg',goal:GOALS.ca,color:'#378ADD'},
+    {lbl:'鉄分',val:ns.fe.toFixed(1),unit:'mg',goal:GOALS.fe,color:'#D4537E'},
+    {lbl:'ビタミンC',val:Math.round(ns.vc),unit:'mg',goal:GOALS.vc,color:'#639922'},
+  ];
+  document.getElementById('liveDetailGrid').innerHTML=detail.map(d=>{
+    const pct=Math.min(100,Math.round((parseFloat(d.val)/d.goal)*100));
+    return`<div class="live-detail-item">
+      <div class="live-detail-lbl">${d.lbl}</div>
+      <div class="live-detail-val" style="color:${pctColor(pct)}">${d.val}</div>
+      <div class="live-detail-unit">${d.unit} / ${d.goal}</div>
+      <div class="live-detail-bar"><div class="live-detail-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+let liveDetailOpen=false;
+function toggleLiveDetail(){
+  liveDetailOpen=!liveDetailOpen;
+  document.getElementById('liveDetail').classList.toggle('open',liveDetailOpen);
+  document.getElementById('live-toggle').textContent=liveDetailOpen?'▼ 閉じる':'▲ 詳細';
+  if(liveDetailOpen)updateLiveBar();
+}
+
+// ===== UI構築 =====
+function pillStyle(color){
+  const c=PILL_COLORS[color]||{bg:'#eee',text:'#555'};
+  return`background:${c.bg};color:${c.text}`;
+}
+
+function makeGSel(defaultG,gmax,gstep){
+  const max=gmax||300,step=gstep||10;
+  const s=document.createElement('select');
+  s.className='g-sel';
+  for(let g=step;g<=max;g+=step){
+    const o=document.createElement('option');
+    o.value=g;o.textContent=g+'g';
+    if(g===defaultG)o.selected=true;
+    s.appendChild(o);
+  }
+  s.addEventListener('change',updateLiveBar);
+  return s;
+}
+
+function buildSearchInput(onSelect){
+  const wrap=document.createElement('div');wrap.className='search-wrap';
+  const icon=document.createElement('span');icon.className='s-icon';icon.textContent='🔍';
+  const inp=document.createElement('input');
+  inp.className='s-input';inp.placeholder='食材を検索（例：ブロ、から、ほうれん）';inp.autocomplete='off';
+  const drop=document.createElement('div');drop.className='drop';
+  function toHira(str){return str.replace(/[\u30A1-\u30F6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));}
+  function show(q){
+    if(!q){drop.style.display='none';return;}
+    const lq=q.toLowerCase();
+    const hq=toHira(q);
+    const hits=foodNames.filter(n=>{
+      var r=FOODS[n].read||'';
+      return n.includes(q)||n.includes(hq)||r.includes(lq)||r.includes(toHira(lq));
+    }).slice(0,10);
+    if(!hits.length){drop.style.display='none';return;}
+    drop.innerHTML=hits.map(n=>`<div class="drop-item" data-name="${n}"><span>${n}</span><span class="drop-kcal">${FOODS[n].cal}kcal/100g</span></div>`).join('');
+    drop.style.display='block';
+    drop.querySelectorAll('.drop-item').forEach(item=>{
+      item.addEventListener('mousedown',e=>{
+        e.preventDefault();
+        onSelect(item.dataset.name);
+        inp.value='';drop.style.display='none';
+      });
+    });
+  }
+  inp.addEventListener('input',()=>show(inp.value));
+  inp.addEventListener('blur',()=>setTimeout(()=>drop.style.display='none',150));
+  wrap.appendChild(icon);wrap.appendChild(inp);wrap.appendChild(drop);
+  return wrap;
+}
+
+function makeDetailBtn(getDataFn){
+  const btn=document.createElement('button');
+  btn.className='detail-btn';
+  btn.innerHTML='<span>▼</span> 栄養素の詳細を見る';
+  const panel=document.createElement('div');panel.className='detail-panel';
+  btn.addEventListener('click',()=>{
+    const open=panel.classList.toggle('open');
+    btn.innerHTML=`<span>${open?'▲':'▼'}</span> ${open?'詳細を閉じる':'栄養素の詳細を見る'}`;
+    if(open){
+      const d=getDataFn();
+      if(!d||!d.food){panel.innerHTML='<p style="font-size:12px;color:var(--text3)">食材を選択してください</p>';return;}
+      const f=FOODS[d.food];if(!f)return;
+      const r=d.g/100;
+      panel.innerHTML=`<p style="font-size:11px;color:var(--text3);margin-bottom:6px">${d.food} ${d.g}g あたり</p>
+        <table class="detail-table">
+          <tr><th>カロリー</th><td>${Math.round(f.cal*r)} kcal</td></tr>
+          <tr><th>たんぱく質</th><td>${(f.pro*r).toFixed(1)} g</td></tr>
+          <tr><th>脂質</th><td>${(f.fat*r).toFixed(1)} g</td></tr>
+          <tr><th>炭水化物</th><td>${(f.carb*r).toFixed(1)} g</td></tr>
+          <tr><th>カルシウム</th><td>${Math.round(f.ca*r)} mg</td></tr>
+          <tr><th>鉄分</th><td>${(f.fe*r).toFixed(1)} mg</td></tr>
+          <tr><th>ビタミンC</th><td>${Math.round(f.vc*r)} mg</td></tr>
+        </table>`;
+    }
+  });
+  return{btn,panel};
+}
+
+function makeItemRow(cat, body){
+  const item=document.createElement('div');
+  item.className='multi-item';
+
+  const disp=document.createElement('div');
+  disp.className='food-disp empty';disp.textContent='未選択';disp.dataset.food='';
+
+  const srch=buildSearchInput(name=>{
+    disp.textContent=name+'（'+FOODS[name].cal+'kcal/100g）';
+    disp.className='food-disp';disp.dataset.food=name;
+    updateLiveBar();
+  });
+  item.appendChild(srch);
+
+  const selRow=document.createElement('div');selRow.className='sel-row';
+  selRow.appendChild(disp);
+  const gSel=makeGSel(cat.defaultG,cat.gmax,cat.gstep);
+  selRow.appendChild(gSel);
+  const xBtn=document.createElement('button');xBtn.className='x-btn';xBtn.textContent='×';
+  xBtn.onclick=function(){
+    if(body.querySelectorAll('.multi-item').length>1){ item.remove(); }
+    else { disp.textContent='未選択';disp.className='food-disp empty';disp.dataset.food=''; }
+    updateLiveBar();
+  };
+  selRow.appendChild(xBtn);
+  item.appendChild(selRow);
+
+  const orLbl=document.createElement('div');orLbl.className='or-lbl';orLbl.textContent='またはよく使う食材から：';
+  item.appendChild(orLbl);
+  const qSel=document.createElement('select');qSel.className='q-sel';
+  qSel.innerHTML='<option value="">— よく使う食材 —</option>'+cat.opts.map(function(o){return '<option value="'+o+'">'+o+'</option>';}).join('');
+  qSel.addEventListener('change',function(){
+    if(qSel.value){
+      disp.textContent=qSel.value+'（'+(FOODS[qSel.value]?FOODS[qSel.value].cal:'—')+'kcal/100g）';
+      disp.className='food-disp';disp.dataset.food=qSel.value;qSel.value='';
+      updateLiveBar();
+    }
+  });
+  item.appendChild(qSel);
+  item._disp=disp;item._gSel=gSel;
+  return item;
+}
+
+function buildBlock(cat){
+  const block=document.createElement('div');
+  block.className='cat-block';block.dataset.catId=cat.id;
+  const hd=document.createElement('div');hd.className='cat-header';
+  const pill=document.createElement('span');pill.className='cat-pill';
+  pill.style.cssText=pillStyle(cat.color);pill.textContent=cat.label;
+  hd.appendChild(pill);block.appendChild(hd);
+
+  const body=document.createElement('div');body.className='cat-body';
+
+  // 最初の1行
+  const firstItem=makeItemRow(cat,body);
+  body.appendChild(firstItem);
+
+  // 追加ボタン（multi:trueのカテゴリのみ）
+  if(cat.multi){
+    const addBtn=document.createElement('button');
+    addBtn.className='add-item-btn';
+    addBtn.textContent='＋ もう1品追加する';
+    addBtn.onclick=function(){
+      const newItem=makeItemRow(cat,body);
+      body.insertBefore(newItem,addBtn);
+      updateLiveBar();
+    };
+    body.appendChild(addBtn);
+  }
+
+  block.appendChild(body);
+
+  // 詳細ボタン（全アイテムの合計を表示）
+  const{btn:detailBtn,panel:detailPanel}=makeDetailBtn(function(){
+    var items=[...body.querySelectorAll('.multi-item')];
+    if(items.length===1){
+      return{food:items[0]._disp.dataset.food, g:parseFloat(items[0]._gSel.value)||0};
+    }
+    // 複数の場合は合計
+    var t={cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
+    items.forEach(function(it){
+      var f=it._disp.dataset.food; var g=parseFloat(it._gSel.value)||0;
+      if(f&&FOODS[f]&&g){var r=g/100; Object.keys(t).forEach(function(k){t[k]+=FOODS[f][k]*r;});}
+    });
+    return{food:'__multi__',g:1,_totals:t};
+  });
+  block.appendChild(detailBtn);block.appendChild(detailPanel);
+  block._getItems=function(){
+    return [...body.querySelectorAll('.multi-item')].map(function(it){
+      return{food:it._disp.dataset.food, g:parseFloat(it._gSel.value)||0};
+    });
+  };
+  return block;
+}
+
+function makeSoupIngRow(cat, ingContainer){
+  var ing=document.createElement('div');ing.className='soup-ing';
+  var num=ingContainer.querySelectorAll('.soup-ing').length+1;
+  var ingLbl=document.createElement('div');ingLbl.className='soup-ing-lbl';ingLbl.textContent='具材 '+num;
+  ing.appendChild(ingLbl);
+  var disp=document.createElement('div');
+  disp.className='food-disp empty';disp.textContent='未選択';disp.dataset.food='';
+  var srch=buildSearchInput(function(name){
+    disp.textContent=name.replace('（スープ用）','');disp.className='food-disp';disp.dataset.food=name;updateLiveBar();
+  });
+  ing.appendChild(srch);
+  var selRow=document.createElement('div');selRow.className='sel-row';
+  selRow.appendChild(disp);
+  var gSel=makeGSel(30,150,10);
+  selRow.appendChild(gSel);
+  var xBtn=document.createElement('button');xBtn.className='x-btn';xBtn.textContent='×';
+  xBtn.onclick=function(){
+    if(ingContainer.querySelectorAll('.soup-ing').length>1){ ing.remove(); }
+    else { disp.textContent='未選択';disp.className='food-disp empty';disp.dataset.food=''; }
+    updateLiveBar();
+  };
+  selRow.appendChild(xBtn);
+  ing.appendChild(selRow);
+  var qSel=document.createElement('select');qSel.className='q-sel';qSel.style.marginTop='4px';
+  qSel.innerHTML='<option value="">— よく使う具材 —</option>'+cat.opts.map(function(o){return '<option value="'+o+'">'+o.replace('（スープ用）','')+'</option>';}).join('');
+  qSel.addEventListener('change',function(){
+    if(qSel.value){disp.textContent=qSel.value.replace('（スープ用）','');disp.className='food-disp';disp.dataset.food=qSel.value;qSel.value='';updateLiveBar();}
+  });
+  ing.appendChild(qSel);
+  ing._disp=disp;ing._gSel=gSel;
+  return ing;
+}
+
+function buildSoupBlock(cat){
+  var block=document.createElement('div');
+  block.className='cat-block';block.dataset.catId=cat.id;block.dataset.isSoup='1';
+  var hd=document.createElement('div');hd.className='cat-header';
+  var pill=document.createElement('span');pill.className='cat-pill';
+  pill.style.cssText=pillStyle(cat.color);pill.textContent=cat.label;
+  hd.appendChild(pill);block.appendChild(hd);
+
+  var body=document.createElement('div');body.className='cat-body';
+  var typeRow=document.createElement('div');typeRow.className='soup-type-row';
+  var typeLbl=document.createElement('span');typeLbl.className='soup-type-lbl';typeLbl.textContent='種類：';
+  var typeSel=document.createElement('select');typeSel.className='soup-type-sel';
+  SOUP_TYPES.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;typeSel.appendChild(o);});
+  typeRow.appendChild(typeLbl);typeRow.appendChild(typeSel);body.appendChild(typeRow);
+
+  // 具材コンテナ（最初は1つ）
+  var ingContainer=document.createElement('div');
+  ingContainer.className='soup-ing-container';
+  ingContainer.appendChild(makeSoupIngRow(cat,ingContainer));
+  body.appendChild(ingContainer);
+
+  // 具材追加ボタン
+  var addIngBtn=document.createElement('button');
+  addIngBtn.className='add-item-btn';
+  addIngBtn.textContent='＋ 具材を追加する';
+  addIngBtn.onclick=function(){
+    var newIng=makeSoupIngRow(cat,ingContainer);
+    ingContainer.appendChild(newIng);
+    // 番号を更新
+    [...ingContainer.querySelectorAll('.soup-ing-lbl')].forEach(function(l,i){l.textContent='具材 '+(i+1);});
+    updateLiveBar();
+  };
+  body.appendChild(addIngBtn);
+
+  var{btn:detailBtn,panel:detailPanel}=makeDetailBtn(function(){return null;});
+  detailBtn.addEventListener('click',function(){
+    if(!detailPanel.classList.contains('open'))return;
+    var items=[...ingContainer.querySelectorAll('.soup-ing')].map(function(ing){
+      return{food:ing._disp.dataset.food, g:parseFloat(ing._gSel.value)||0};
+    }).filter(function(n){return n.food;});
+    if(!items.length){detailPanel.innerHTML='<p style="font-size:12px;color:var(--text3)">具材を選択してください</p>';return;}
+    var t={cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
+    items.forEach(function(item){
+      if(FOODS[item.food]){var f=FOODS[item.food],r=item.g/100;Object.keys(t).forEach(function(k){t[k]+=f[k]*r;});}
+    });
+    detailPanel.innerHTML='<p style="font-size:11px;color:var(--text3);margin-bottom:6px">スープ合計（'+items.map(function(n){return n.food.replace('（スープ用）','');}).join('・')+'）</p>'
+      +'<table class="detail-table">'
+      +'<tr><th>カロリー</th><td>'+Math.round(t.cal)+' kcal</td></tr>'
+      +'<tr><th>たんぱく質</th><td>'+t.pro.toFixed(1)+' g</td></tr>'
+      +'<tr><th>脂質</th><td>'+t.fat.toFixed(1)+' g</td></tr>'
+      +'<tr><th>炭水化物</th><td>'+t.carb.toFixed(1)+' g</td></tr>'
+      +'<tr><th>カルシウム</th><td>'+Math.round(t.ca)+' mg</td></tr>'
+      +'<tr><th>鉄分</th><td>'+t.fe.toFixed(1)+' mg</td></tr>'
+      +'<tr><th>ビタミンC</th><td>'+Math.round(t.vc)+' mg</td></tr>'
+      +'</table>';
+  });
+  block.appendChild(body);block.appendChild(detailBtn);block.appendChild(detailPanel);
+  block._ingContainer=ingContainer;
+  return block;
+}
+
+function buildMeal(containerId,cats){
+  const c=document.getElementById(containerId);
+  cats.forEach(cat=>c.appendChild(cat.isSoup?buildSoupBlock(cat):buildBlock(cat)));
+}
+
+function getN(food,g){
+  if(!food||!FOODS[food]||!g)return{cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
+  const f=FOODS[food],r=g/100;
+  return{cal:f.cal*r,pro:f.pro*r,fat:f.fat*r,carb:f.carb*r,ca:f.ca*r,fe:f.fe*r,vc:f.vc*r};
+}
+function sumNs(ns){
+  const t={cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
+  ns.forEach(n=>Object.keys(t).forEach(k=>t[k]+=n[k]||0));
+  return t;
+}
+function getMealN(containerId,cats){
+  var ns=[];
+  cats.forEach(function(cat){
+    var block=[...document.querySelectorAll('#'+containerId+' .cat-block')].find(function(b){return b.dataset.catId===cat.id;});
+    if(!block)return;
+    if(block.dataset.isSoup){
+      if(block._ingContainer){
+        [...block._ingContainer.querySelectorAll('.soup-ing')].forEach(function(ing){
+          ns.push(getN(ing._disp?ing._disp.dataset.food:'',ing._gSel?parseFloat(ing._gSel.value)||0:0));
+        });
+      } else if(block._dispRefs){
+        block._dispRefs.forEach(function(d,i){ns.push(getN(d.dataset.food,parseFloat(block._gSelRefs[i].value)||0));});
+      }
+    } else if(block._getItems){
+      // 複数アイテム対応
+      block._getItems().forEach(function(item){ns.push(getN(item.food,item.g));});
+    } else {
+      ns.push(getN(block.querySelector('.food-disp').dataset.food,parseFloat(block.querySelector('.g-sel').value)||0));
+    }
+  });
+  return sumNs(ns);
+}
+
+function calculate(){
+  calcGoals();
+  const m=getMealN('morning-cats',MORNING_CATS);
+  const l=getLunchNutrients();
+  const n=getMealN('night-cats',NIGHT_CATS);
+  const totalCal=Math.round(m.cal+l.cal+n.cal);
+  const calPct=Math.min(120,Math.round(totalCal/GOALS.total*100));
+  document.getElementById('r-cal-pct').textContent=calPct+'%';
+  document.getElementById('r-cal').textContent=totalCal.toLocaleString();
+  document.getElementById('r-cal-goal').textContent=GOALS.total.toLocaleString();
+
+  const nutrients=[
+    {name:'たんぱく質',unit:'g',goal:GOALS.pro,m:m.pro,l:l.pro,n:n.pro},
+    {name:'脂質',unit:'g',goal:GOALS.fat,m:m.fat,l:l.fat,n:n.fat},
+    {name:'炭水化物',unit:'g',goal:GOALS.carb,m:m.carb,l:l.carb,n:n.carb},
+    {name:'カルシウム',unit:'mg',goal:GOALS.ca,m:m.ca,l:l.ca,n:n.ca},
+    {name:'鉄分',unit:'mg',goal:GOALS.fe,m:m.fe,l:l.fe,n:n.fe},
+    {name:'ビタミンC',unit:'mg',goal:GOALS.vc,m:m.vc,l:l.vc,n:n.vc},
+  ];
+  let totalPct=0;
+  document.getElementById('bars').innerHTML=nutrients.map(nu=>{
+    const tot=nu.m+nu.l+nu.n;
+    const pct=Math.min(100,Math.round(tot/nu.goal*100));
+    totalPct+=pct;
+    const mw=Math.min(100,Math.round(nu.m/nu.goal*100));
+    const lw=Math.min(100-mw,Math.round(nu.l/nu.goal*100));
+    const nw=Math.min(100-mw-lw,Math.round(nu.n/nu.goal*100));
+    return`<div class="bar-wrap"><div class="bar-hd"><span class="bar-nm">${nu.name}</span><span class="bar-ns">${Math.round(tot)}${nu.unit} / ${nu.goal}${nu.unit}（${pct}%）</span></div><div class="bar-track"><div class="bar-seg" style="width:${mw}%;background:#5a5a57"></div><div class="bar-seg" style="width:${lw}%;background:var(--teal)"></div><div class="bar-seg" style="width:${nw}%;background:var(--coral)"></div></div></div>`;
+  }).join('');
+  document.getElementById('r-nut-pct').textContent=Math.round(totalPct/nutrients.length)+'%';
+
+  const totals={
+    pro:m.pro+l.pro+n.pro,
+    fat:m.fat+l.fat+n.fat,
+    carb:m.carb+l.carb+n.carb,
+    ca:m.ca+l.ca+n.ca,
+    fe:m.fe+l.fe+n.fe,
+    vc:m.vc+l.vc+n.vc,
+  };
+
+  // 現在選んでいる全食材を収集
+  function getSelectedFoods(){
+    const selected=[];
+    document.querySelectorAll('.cat-block').forEach(block=>{
+      if(block.dataset.isSoup){
+        if(!block._dispRefs)return;
+        block._dispRefs.forEach((d,i)=>{
+          if(d.dataset.food&&FOODS[d.dataset.food]){
+            selected.push({name:d.dataset.food,g:parseFloat(block._gSelRefs[i].value)||0,el:block._gSelRefs[i]});
+          }
+        });
+      } else {
+        const disp=block.querySelector('.food-disp');
+        const gSel=block.querySelector('.g-sel');
+        if(disp&&disp.dataset.food&&FOODS[disp.dataset.food]&&gSel){
+          selected.push({name:disp.dataset.food,g:parseFloat(gSel.value)||0,el:gSel});
+        }
+      }
+    });
+    return selected;
+  }
+
+  // 不足栄養素に対して「今の食材をあと何g増やすか」または「何を追加するか」を提案
+  function makeSmartAdvice(nutrientKey,nutrientName,unit,goal,current){
+    const shortage=goal-current;
+    if(shortage<=0)return null;
+
+    const selected=getSelectedFoods();
+
+    // 選んでいる食材の中でその栄養素が豊富なものを探す
+    const bestExisting=selected
+      .filter(s=>FOODS[s.name][nutrientKey]>0)
+      .map(s=>({
+        ...s,
+        per100:FOODS[s.name][nutrientKey],
+        neededG:Math.ceil(shortage/(FOODS[s.name][nutrientKey]/100)/10)*10,
+      }))
+      .sort((a,b)=>b.per100-a.per100)[0];
+
+    // 全食材の中で最も効率よく補えるものを探す（追加候補）
+    const RICH_FOODS={
+      fe:['納豆','ひじきの煮物','ほうれん草のおひたし','ほうれん草の胡麻和え','小松菜炒め','枝豆','厚揚げ','厚揚げの煮物','ゆで卵','卵焼き'],
+      ca:['チーズ','牛乳','小松菜炒め','厚揚げ','木綿豆腐','ヨーグルト（プレーン）','ひじきの煮物','切り干し大根煮'],
+      pro:['まぐろの刺身','茹で鶏むね','鶏ハム','ツナ缶','納豆','卵焼き','鮭の塩焼き'],
+      vc:['ブロッコリー蒸し','ブロッコリーのサラダ','いちご','キウイ','キャベツの千切り','れんこんのきんぴら','オレンジジュース'],
+    };
+
+    const candidates=(RICH_FOODS[nutrientKey]||[])
+      .filter(name=>FOODS[name]&&FOODS[name][nutrientKey]>0)
+      .map(name=>({
+        name,
+        per100:FOODS[name][nutrientKey],
+        neededG:Math.ceil(shortage/(FOODS[name][nutrientKey]/100)/10)*10,
+      }))
+      .sort((a,b)=>a.neededG-b.neededG);
+
+    const lines=[];
+
+    // 既存食材で補える場合
+    if(bestExisting&&bestExisting.neededG<=200){
+      lines.push(`<span style="color:#7BA59E;font-weight:700">✓ 今の食材で補う：</span>「${bestExisting.name}」をあと <strong>${bestExisting.neededG}g</strong> 増やす（現在${bestExisting.g}g → ${bestExisting.g+bestExisting.neededG}g）`);
+    }
+
+    // 追加候補（既存以外）
+    const newCandidates=candidates.filter(c=>!selected.find(s=>s.name===c.name)).slice(0,2);
+    if(newCandidates.length>0){
+      const alt=newCandidates.map(c=>`「${c.name}」${c.neededG}g`).join('または');
+      lines.push(`<span style="color:#8B6F5E;font-weight:700">＋ 追加するなら：</span>${alt} を加える`);
+    }
+
+    if(lines.length===0){
+      lines.push(`${nutrientName}が豊富な食材を意識して追加してください`);
+    }
+
+    const pct=Math.round(current/goal*100);
+    return`<div class="alert warn" style="line-height:1.8">
+      <div style="font-weight:700;margin-bottom:6px">⚠ ${nutrientName}があと <span style="color:#C97B5A">${shortage.toFixed(1)}${unit}</span> 不足（現在${pct}%）</div>
+      ${lines.map(l=>`<div style="font-size:11px;padding:2px 0">${l}</div>`).join('')}
+    </div>`;
+  }
+
+  const alerts=[];
+  const proAdv=makeSmartAdvice('pro','たんぱく質','g',GOALS.pro,totals.pro);
+  const caAdv=makeSmartAdvice('ca','カルシウム','mg',GOALS.ca,totals.ca);
+  const feAdv=makeSmartAdvice('fe','鉄分','mg',GOALS.fe,totals.fe);
+  const vcAdv=makeSmartAdvice('vc','ビタミンC','mg',GOALS.vc,totals.vc);
+
+  if(totals.pro<GOALS.pro*0.99&&proAdv)alerts.push(proAdv);
+  if(totals.ca<GOALS.ca*0.99&&caAdv)alerts.push(caAdv);
+  if(totals.fe<GOALS.fe*0.99&&feAdv)alerts.push(feAdv);
+  if(totals.vc<GOALS.vc*0.99&&vcAdv)alerts.push(vcAdv);
+  if(totalCal>GOALS.total*1.15)alerts.push(`<div class="alert warn">カロリーがやや多めです。ご飯やメインの量を少し減らしても</div>`);
+  // アルコール摂取量チェック
+  var alcoFoods=['ビール（350ml）','ビール（500ml）','発泡酒（350ml）','第三のビール（350ml）','ハイボール（350ml）','チューハイ・レモン（350ml）','チューハイ・ゼロ（350ml）','日本酒（1合・180ml）','焼酎（水割り・200ml）','ワイン（グラス・120ml）','赤ワイン（グラス・120ml）','白ワイン（グラス・120ml）','ウイスキー（シングル・30ml）','梅酒（100ml）','スパークリングワイン（120ml）'];
+  var hasAlcohol=false;
+  document.querySelectorAll('.food-disp').forEach(function(d){if(alcoFoods.includes(d.dataset.food))hasAlcohol=true;});
+  if(hasAlcohol){alerts.push('<div class="alert warn" style="background:#FFF3E0;border-color:#FFB74D;color:#E65100">お酒のカロリーはエンプティカロリー（栄養素なし）です。飲みすぎに注意し、適量を心がけましょう🍺</div>');}
+  if(alerts.length===0&&calPct>=85&&calPct<=115)alerts.push(`<div class="alert ok">すべての栄養素がバランスよく摂れています！今日も元気に過ごせそうです</div>`);
+  document.getElementById('alerts').innerHTML=alerts.join('');
+
+  let suggestions=[];
+  if(totals.ca<GOALS.ca*0.8)suggestions=['豆腐','わかめ','油揚げ'];
+  else if(totals.fe<GOALS.fe*0.8)suggestions=['ほうれん草','えのき','麩'];
+  else if(totals.vc<GOALS.vc*0.8)suggestions=['キャベツ','ほうれん草'];
+  else suggestions=['わかめ','なめこ','ねぎ','大根'];
+  document.getElementById('soup-tags').innerHTML=suggestions.map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+
+// ===== 写真スキャン機能 =====
+var GEMINI_API_KEY = 'AIzaSyB7ZSd-XkIP6mx6JBZ9PWXbN2qEDonQFAE'; // ここにGemini APIキーを設定
+let photoBase64 = null;
+let photoMimeType = 'image/jpeg';
+let photoMealTarget = 'morning';
+let photoDetectedItems = [];
+
+function onPhotoSelected(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const objectUrl = URL.createObjectURL(file);
+  const preview = document.getElementById('photoPreview');
+  preview.src = objectUrl;
+  preview.style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,/);
+    photoMimeType = m ? m[1] : 'image/jpeg';
+    photoBase64 = dataUrl.split(',')[1];
+    document.getElementById('mealSelRow').style.display = 'flex';
+    document.getElementById('analyzeBtn').style.display = 'block';
+    document.getElementById('photoResult').style.display = 'none';
+    const sub = document.querySelector('.photo-upload-sub');
+    if(sub) sub.textContent = '✓ 写真を読み込みました！下のボタンで解析してください';
+  };
+  reader.onerror = function(){ alert('ファイルの読み込みに失敗しました'); };
+  reader.readAsDataURL(file);
+}
+
+function selectMealTarget(btn){
+  document.querySelectorAll('.meal-sel-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  photoMealTarget = btn.dataset.meal;
+}
+
+async function analyzePhoto(){
+  if(!photoBase64){ alert('写真を選んでください'); return; }
+  if(!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyB7ZSd-XkIP6mx6JBZ9PWXbN2qEDonQFAE'){
+    alert('Gemini APIキーが設定されていません');
+    return;
+  }
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('photoLoading').style.display = 'block';
+  document.getElementById('photoResult').style.display = 'none';
+
+  var prompt = 'この料理の写真を見て、写っている食材・料理をすべて識別してください。必ず以下のJSON形式のみで回答してください。説明文や他の文章は一切不要です。{"items":[{"name":"食材・料理名（日本語）","estimatedG":推定グラム数の数値,"confidence":"high"}]}。量は皿のサイズや一般的な1人前を参考に推定。最大10品目まで。';
+
+  try {
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
+    var response = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{
+          parts:[
+            {inline_data:{mime_type: photoMimeType, data: photoBase64}},
+            {text: prompt}
+          ]
+        }],
+        generationConfig:{
+          temperature: 0.1,
+          maxOutputTokens: 1000,
+        }
+      })
+    });
+
+    var data = await response.json();
+    console.log('Gemini response:', JSON.stringify(data));
+
+    if(data.error){
+      alert('APIエラー: ' + data.error.message);
+      return;
+    }
+
+    var text = '';
+    if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts){
+      text = data.candidates[0].content.parts.map(function(p){return p.text||'';}).join('');
+    }
+    console.log('Raw text:', text);
+
+    // JSONを安全に抽出
+    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    if(!jsonMatch){
+      alert('食材を識別できませんでした。より鮮明な写真でお試しください。');
+      return;
+    }
+    var parsed = JSON.parse(jsonMatch[0]);
+    photoDetectedItems = parsed.items || [];
+    renderPhotoResults();
+
+  } catch(e) {
+    alert('解析に失敗しました: ' + e.message);
+    console.error(e);
+  } finally {
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('photoLoading').style.display = 'none';
+  }
+}
+
+function findClosestFood(name){
+  if(FOODS[name]) return {key:name, food:FOODS[name]};
+  var keys = Object.keys(FOODS);
+  var short = name.replace(/[（）のをにがは]/g,'').slice(0,4);
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    if(k.includes(name)||name.includes(k.replace(/[（）のをにがは]/g,'').slice(0,4))) return {key:k,food:FOODS[k]};
+  }
+  var lname = name.toLowerCase();
+  for(var j=0;j<keys.length;j++){
+    var k2=keys[j];
+    if((FOODS[k2].read||'').includes(lname.slice(0,4))) return {key:k2,food:FOODS[k2]};
+  }
+  return null;
+}
+
+function renderPhotoResults(){
+  var list = document.getElementById('photoItemList');
+  var matchedItems = photoDetectedItems.map(function(item){
+    return Object.assign({},item,{matched: findClosestFood(item.name)});
+  });
+  photoDetectedItems = matchedItems;
+  if(matchedItems.length === 0){
+    list.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:8px 0">食材を識別できませんでした。より明るく鮮明な写真でお試しください。</p>';
+    document.getElementById('photoResult').style.display = 'block';
+    document.getElementById('photoApplyBtn').style.display = 'none';
+    return;
+  }
+  var html = '';
+  for(var i=0;i<matchedItems.length;i++){
+    var item = matchedItems[i];
+    var matched = item.matched;
+    var confColor = item.confidence==='high'?'#7BA59E':(item.confidence==='medium'?'#C9A05A':'#C97B5A');
+    var confLabel = item.confidence==='high'?'確実':(item.confidence==='medium'?'概算':'推測');
+    var kcal = matched ? Math.round(matched.food.cal * item.estimatedG / 100) + 'kcal' : '—';
+    var notInDB = matched ? '' : '<span style="color:#C97B5A"> ※DB未登録</span>';
+    var displayName = matched ? matched.key : item.name;
+    html += '<div class="photo-item">';
+    html += '<div class="photo-item-check checked" id="chk-' + i + '" onclick="togglePhotoItem(this,' + i + ')">✓</div>';
+    html += '<div style="flex:1">';
+    html += '<div style="font-size:13px;color:var(--text);font-weight:500">' + displayName + '</div>';
+    html += '<div style="font-size:11px;color:var(--text3);margin-top:1px">約' + item.estimatedG + 'g　<span style="color:' + confColor + '">' + confLabel + '</span>' + notInDB + '</div>';
+    html += '</div>';
+    html += '<div style="font-size:12px;color:var(--text2);text-align:right;white-space:nowrap">' + kcal + '</div>';
+    html += '</div>';
+  }
+  list.innerHTML = html;
+  document.getElementById('photoResult').style.display = 'block';
+  document.getElementById('photoApplyBtn').style.display = 'block';
+}
+
+function togglePhotoItem(el, i){
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function applyPhotoResults(){
+  var checkedItems = photoDetectedItems.filter(function(item,i){
+    var chk = document.getElementById('chk-'+i);
+    return chk && chk.classList.contains('checked') && item.matched;
+  });
+  if(checkedItems.length === 0){ alert('反映する食材を選んでください'); return; }
+  var containerId = photoMealTarget === 'morning' ? 'morning-cats' : 'night-cats';
+  checkedItems.forEach(function(item){
+    var foodKey = item.matched.key;
+    var food = item.matched.food;
+    var g = item.estimatedG;
+    var allBlocks = Array.from(document.querySelectorAll('#'+containerId+' .cat-block')).filter(function(b){ return !b.dataset.isSoup; });
+    var applied = false;
+    for(var i=0;i<allBlocks.length;i++){
+      var block = allBlocks[i];
+      var disp = block.querySelector('.food-disp');
+      var gSel = block.querySelector('.g-sel');
+      if(!disp||!gSel) continue;
+      if(disp.dataset.food === ''){
+        disp.textContent = foodKey + '（' + food.cal + 'kcal/100g）';
+        disp.className = 'food-disp';
+        disp.dataset.food = foodKey;
+        var opts = Array.from(gSel.options);
+        var closest = opts.reduce(function(a,b){ return Math.abs(+b.value-g)<Math.abs(+a.value-g)?b:a; });
+        gSel.value = closest.value;
+        applied = true;
+        break;
+      }
+    }
+    if(!applied && allBlocks.length > 0){
+      var b0 = allBlocks[0];
+      var d0 = b0.querySelector('.food-disp');
+      var g0 = b0.querySelector('.g-sel');
+      if(d0&&g0){
+        d0.textContent = foodKey + '（' + food.cal + 'kcal/100g）';
+        d0.className = 'food-disp';
+        d0.dataset.food = foodKey;
+        var opts2 = Array.from(g0.options);
+        var cl2 = opts2.reduce(function(a,b){ return Math.abs(+b.value-g)<Math.abs(+a.value-g)?b:a; });
+        g0.value = cl2.value;
+      }
+    }
+  });
+  updateLiveBar();
+  var applyBtn = document.getElementById('photoApplyBtn');
+  applyBtn.textContent = '✓ 反映しました！';
+  applyBtn.style.background = '#7BA59E';
+  setTimeout(function(){
+    applyBtn.textContent = '選んだ食材をアプリに反映する';
+    applyBtn.style.background = '';
+  }, 2000);
+  document.getElementById(photoMealTarget+'-card').scrollIntoView({behavior:'smooth'});
+}
+
+
+// ===== 食事ごとの栄養サマリー =====
+function updateMealSummary(containerId, cats, summaryId){
+  var ns = getMealN(containerId, cats);
+  var el = document.getElementById(summaryId);
+  if(!el) return;
+  if(ns.cal < 1){ el.style.display='none'; return; }
+  el.style.display='block';
+  var mealName = containerId==='morning-cats'?'朝ごはん':containerId==='lunch-cats'?'昼ごはん':'夜ごはん';
+  el.innerHTML = '<div class="meal-summary-title">' + mealName + 'の合計</div>'
+    + '<div class="meal-summary-grid">'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.cal) + '</div><div class="meal-summary-lbl">kcal</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.pro) + '</div><div class="meal-summary-lbl">たんぱく質g</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.ca) + '</div><div class="meal-summary-lbl">カルシウムmg</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + ns.fe.toFixed(1) + '</div><div class="meal-summary-lbl">鉄分mg</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.carb) + '</div><div class="meal-summary-lbl">炭水化物g</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.fat) + '</div><div class="meal-summary-lbl">脂質g</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.vc) + '</div><div class="meal-summary-lbl">ビタミンCmg</div></div>'
+    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.cal) + '</div><div class="meal-summary-lbl">合計kcal</div></div>'
+    + '</div>';
+}
+
+// オリジナルのupdateLiveBarをラップして食事サマリーも更新
+var _origUpdateLiveBar = updateLiveBar;
+updateLiveBar = function(){
+  _origUpdateLiveBar();
+  updateMealSummary('morning-cats', MORNING_CATS, 'morning-meal-summary');
+  updateMealSummary('night-cats', NIGHT_CATS, 'night-meal-summary');
+  if(lunchMode==='manual') updateMealSummary('lunch-cats', LUNCH_CATS, 'lunch-meal-summary');
+};
+
+buildMeal('morning-cats',MORNING_CATS);
+buildMeal('lunch-cats',LUNCH_CATS);
+buildMeal('night-cats',NIGHT_CATS);
+['gender','age','weight','height','activity'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',calcGoals)});
+calcGoals();
+</script>
+</body>
+</html>

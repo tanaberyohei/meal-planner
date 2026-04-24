@@ -1621,7 +1621,7 @@ async function analyzePhoto(){
   document.getElementById('photoLoading').style.display = 'block';
   document.getElementById('photoResult').style.display = 'none';
 
-  var prompt = '写真の料理・食材を識別してください。ルール：皿や器に乗っている果物（オレンジ・みかん・りんごなど）はそのまま果物名で答える。ジュースはグラスやコップに入っているものだけ。必ずJSON形式のみで回答：{"items":[{"name":"料理名（日本語）","estimatedG":数値,"confidence":"high"}]}。最大8品目。';
+  var prompt = '写真の料理・食材をすべて識別してください。見えているものを全部答えてください。注意：皿・器に盛られた果物はそのまま果物名（オレンジ、みかん等）で答える。ジュースはグラスやコップの液体のみ。必ずJSON形式のみで回答：{"items":[{"name":"料理名（日本語）","estimatedG":数値,"confidence":"high"}]}。最大10品目。';
 
   try {
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;

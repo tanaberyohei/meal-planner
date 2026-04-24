@@ -1589,7 +1589,7 @@ async function analyzePhoto(){
   var prompt = 'この料理の写真を見て、写っている食材・料理をすべて識別してください。必ず以下のJSON形式のみで回答してください。説明文や他の文章は一切不要です。{"items":[{"name":"食材・料理名（日本語）","estimatedG":推定グラム数の数値,"confidence":"high"}]}。量は皿のサイズや一般的な1人前を参考に推定。最大10品目まで。';
 
   try {
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
     var response = await fetch(url, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},

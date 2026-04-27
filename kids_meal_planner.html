@@ -1019,7 +1019,8 @@ function calcGoals(){
 // ===== リアルタイム集計 =====
 function getAllNutrients(){
   const ns={cal:0,pro:0,fat:0,carb:0,ca:0,fe:0,vc:0};
-  var allBlocks=[...document.querySelectorAll('.cat-block')];
+  // lunch-catsは別途getLunchNutrients()で加算するため除外
+  var allBlocks=[...document.querySelectorAll('#morning-cats .cat-block, #night-cats .cat-block')];
   allBlocks.forEach(function(block){
     if(block.dataset.isSoup){
       var ings=block._ingContainer

@@ -178,37 +178,21 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--t
 .multi-item:last-child{margin-bottom:0}
 .add-item-btn{width:100%;padding:8px;font-size:12px;color:var(--brown);background:var(--brown-light);border:1px dashed #D4C4B8;border-radius:var(--rs);cursor:pointer;margin-top:6px;font-weight:600;letter-spacing:.02em}
 .add-item-btn:active{opacity:.8}
+
+/* ===== アコーディオン ===== */
+.meal-accordion{border-radius:var(--r);overflow:hidden;margin-bottom:.75rem;border:1px solid var(--border);background:var(--card)}
+.meal-accordion-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:var(--card);user-select:none}
+.meal-accordion-title{font-size:14px;font-weight:700;color:var(--brown-dark);display:flex;align-items:center;gap:8px}
+.meal-accordion-arrow{font-size:12px;color:var(--text3);transition:transform .2s}
+.meal-accordion-arrow.open{transform:rotate(180deg)}
+.meal-accordion-body{display:none;border-top:1px solid var(--border)}
+.meal-accordion-body.open{display:block}
+.meal-accordion-summary{font-size:12px;color:var(--text2);background:var(--brown-light);padding:4px 10px;border-radius:20px}
 .pct-low{color:#C97B5A}
 .pct-mid{color:#C9A05A}
 .pct-ok{color:#7BA59E}
 
-/* ===== 写真スキャン機能 ===== */
-.photo-section{margin-bottom:.75rem}
-.photo-upload-area{border:2px dashed var(--border);border-radius:var(--r);padding:1.5rem 1rem;text-align:center;cursor:pointer;background:#FDFBF9;transition:border-color .2s;display:block}
-.photo-upload-area:active{border-color:var(--brown)}
-.photo-upload-area input[type=file]{display:none}
-.photo-icon{font-size:32px;margin-bottom:6px}
-.photo-upload-title{font-size:14px;font-weight:700;color:var(--brown-dark);margin-bottom:3px}
-.photo-upload-sub{font-size:11px;color:var(--text3)}
-.photo-preview{width:100%;max-height:200px;object-fit:contain;border-radius:var(--rs);margin-top:10px;display:none}
-.photo-meal-sel{display:flex;gap:8px;margin-top:10px}
-.meal-sel-btn{flex:1;padding:8px 4px;font-size:12px;font-weight:700;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;color:var(--text2);cursor:pointer;text-align:center}
-.meal-sel-btn.active{border-color:var(--brown);background:var(--brown-light);color:var(--brown-dark)}
-.photo-analyze-btn{width:100%;padding:12px;background:var(--brown);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:none}
-.photo-analyze-btn:disabled{opacity:.5;cursor:not-allowed}
-.photo-result{margin-top:10px;display:none}
-.photo-result-title{font-size:12px;font-weight:700;color:var(--brown-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.photo-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
-.photo-item:last-child{border-bottom:none}
-.photo-item-name{flex:1;font-size:13px;color:var(--text)}
-.photo-item-kcal{font-size:11px;color:var(--text3);white-space:nowrap}
-.photo-item-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
-.photo-item-check.checked{background:var(--brown);border-color:var(--brown);color:#fff}
-.photo-apply-btn{width:100%;padding:10px;background:var(--sage);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;margin-top:10px}
-.photo-loading{text-align:center;padding:1rem;color:var(--text2);font-size:13px;display:none}
-.photo-loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brown);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.photo-note{font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;text-align:center}
+
 </style>
 </head>
 <body>
@@ -250,15 +234,31 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--t
   </div>
 </div>
 
-<p class="sec-label">朝ごはん</p>
-<div class="card" id="morning-card">
-  <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="morning-cal-target">— kcal</span></div>
-  <div id="morning-cats"></div>
-  <div id="morning-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+<div class="meal-accordion" id="morning-card">
+  <div class="meal-accordion-header" onclick="toggleAccordion('morning')">
+    <div class="meal-accordion-title">
+      🌅 朝ごはん
+      <span class="meal-accordion-summary" id="morning-quick-cal">— kcal</span>
+    </div>
+    <span class="meal-accordion-arrow" id="morning-arrow">▼</span>
+  </div>
+  <div class="meal-accordion-body" id="morning-body">
+    <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="morning-cal-target">— kcal</span></div>
+    <div id="morning-cats"></div>
+    <div id="morning-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+  </div>
 </div>
 
-<p class="sec-label">昼ごはん</p>
-<div class="card card-pad" style="margin-bottom:.75rem">
+<div class="meal-accordion" id="lunch-card">
+  <div class="meal-accordion-header" onclick="toggleAccordion('lunch')">
+    <div class="meal-accordion-title">
+      ☀️ 昼ごはん
+      <span class="meal-accordion-summary" id="lunch-quick-cal">— kcal</span>
+    </div>
+    <span class="meal-accordion-arrow" id="lunch-arrow">▼</span>
+  </div>
+  <div class="meal-accordion-body" id="lunch-body">
+  <div style="padding:1rem 1.125rem">
 
   <div id="lunchSchoolPanel">
     <div class="lunch-card" style="margin-bottom:0">
@@ -279,50 +279,25 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--t
     <div id="lunch-meal-summary" class="meal-summary" style="display:none"></div>
   </div>
 </div>
+  </div>
+</div>
 
-<p class="sec-label">夜ごはん</p>
+<div class="meal-accordion" id="night-card">
 <div class="card" id="night-card">
-  <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="night-cal-target">— kcal</span></div>
-  <div id="night-cats"></div>
-  <div id="night-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+  <div class="meal-accordion-header" onclick="toggleAccordion('night')">
+    <div class="meal-accordion-title">
+      🌙 夜ごはん
+      <span class="meal-accordion-summary" id="night-quick-cal">— kcal</span>
+    </div>
+    <span class="meal-accordion-arrow" id="night-arrow">▼</span>
+  </div>
+  <div class="meal-accordion-body" id="night-body">
+    <div class="cal-banner"><span class="lbl">目標カロリー</span><span class="val" id="night-cal-target">— kcal</span></div>
+    <div id="night-cats"></div>
+    <div id="night-meal-summary" class="meal-summary" style="display:none;margin:0 14px 14px"></div>
+  </div>
 </div>
 
-
-<p class="sec-label">写真でかんたん入力</p>
-<div class="card card-pad photo-section">
-  <div style="background:#F7F6F3;border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;border:1px solid var(--border)">
-    <div style="font-size:11px;color:var(--text2);font-weight:600;margin-bottom:5px">🔑 Gemini APIキー（初回のみ入力・このページに保存されます）</div>
-    <div style="display:flex;gap:6px">
-      <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." style="flex:1;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);background:#fff">
-      <button onclick="saveGeminiKey()" style="padding:7px 12px;background:var(--brown);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">保存</button>
-    </div>
-    <div id="keyStatus" style="font-size:11px;color:var(--text3);margin-top:4px">キーを入力して保存ボタンを押してください</div>
-  </div>
-  <label class="photo-upload-area" for="photoInput">
-    <input type="file" id="photoInput" accept="image/*" onchange="onPhotoSelected(this)">
-    <div class="photo-icon">📷</div>
-    <div class="photo-upload-title">料理の写真をアップロード</div>
-    <div class="photo-upload-sub">タップして写真を選ぶ（カメラ・ギャラリー対応）</div>
-    <img id="photoPreview" class="photo-preview" alt="プレビュー">
-  </label>
-  <div class="photo-meal-sel" id="mealSelRow" style="display:none">
-    <button class="meal-sel-btn active" data-meal="morning" onclick="selectMealTarget(this)">朝ごはん</button>
-    <button class="meal-sel-btn" data-meal="night" onclick="selectMealTarget(this)">夜ごはん</button>
-  </div>
-  <button class="photo-analyze-btn" id="analyzeBtn" onclick="analyzePhoto()">この写真を解析する</button>
-  <div class="photo-loading" id="photoLoading">
-    <span class="photo-loading-spinner"></span>AIが食材を識別中...
-  </div>
-  <div class="photo-result" id="photoResult">
-    <div class="photo-result-title">
-      <span>識別された食材</span>
-      <span style="font-size:11px;color:var(--text3);font-weight:400">チェックして反映する食材を選んでください</span>
-    </div>
-    <div id="photoItemList"></div>
-    <button class="photo-apply-btn" id="photoApplyBtn" onclick="applyPhotoResults()">選んだ食材をアプリに反映する</button>
-  </div>
-  <p class="photo-note">※量は目安です。反映後に調整できます</p>
-</div>
 
 <button class="calc-btn" onclick="calculate()">栄養バランスを確認する</button>
 
@@ -1597,312 +1572,160 @@ function calculate(){
 }
 
 
-// ===== 写真スキャン機能 =====
-var GEMINI_API_KEY = ''; // APIキーはブラウザ内に保存
-
-function saveGeminiKey(){
-  var key = document.getElementById('geminiKeyInput').value.trim();
-  if(!key || key.length < 10){
-    alert('正しいAPIキーを入力してください');
-    return;
-  }
-  GEMINI_API_KEY = key;
-  try{ localStorage.setItem('gemini_api_key', key); }catch(e){}
-  document.getElementById('keyStatus').textContent = '✓ APIキーを保存しました';
-  document.getElementById('keyStatus').style.color = '#7BA59E';
-  document.getElementById('geminiKeyInput').value = '';
+// ===== アコーディオン =====
+function toggleAccordion(meal){
+  var body = document.getElementById(meal+'-body');
+  var arrow = document.getElementById(meal+'-arrow');
+  if(!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
 }
 
-// ページ読み込み時にキーを復元
-(function(){
-  try{
-    var saved = localStorage.getItem('gemini_api_key');
-    if(saved){ 
-      GEMINI_API_KEY = saved;
-      document.addEventListener('DOMContentLoaded', function(){
-        var st = document.getElementById('keyStatus');
-        if(st){ st.textContent = '✓ 保存済みのAPIキーを読み込みました'; st.style.color = '#7BA59E'; }
-      });
-    }
-  }catch(e){}
-})();
-let photoBase64 = null;
-let photoMimeType = 'image/jpeg';
-let photoMealTarget = 'morning';
-let photoDetectedItems = [];
-
-function onPhotoSelected(input){
-  const file = input.files && input.files[0];
-  if(!file) return;
-  const objectUrl = URL.createObjectURL(file);
-  const preview = document.getElementById('photoPreview');
-  preview.src = objectUrl;
-  preview.style.display = 'block';
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const dataUrl = e.target.result;
-    const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,/);
-    photoMimeType = m ? m[1] : 'image/jpeg';
-    photoBase64 = dataUrl.split(',')[1];
-    document.getElementById('mealSelRow').style.display = 'flex';
-    document.getElementById('analyzeBtn').style.display = 'block';
-    document.getElementById('photoResult').style.display = 'none';
-    const sub = document.querySelector('.photo-upload-sub');
-    if(sub) sub.textContent = '✓ 写真を読み込みました！下のボタンで解析してください';
-  };
-  reader.onerror = function(){ alert('ファイルの読み込みに失敗しました'); };
-  reader.readAsDataURL(file);
-}
-
-function selectMealTarget(btn){
-  document.querySelectorAll('.meal-sel-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  photoMealTarget = btn.dataset.meal;
-}
-
-async function analyzePhoto(){
-  if(!photoBase64){ alert('写真を選んでください'); return; }
-  if(!GEMINI_API_KEY || GEMINI_API_KEY.length < 10){
-    alert('Gemini APIキーが設定されていません');
-    return;
-  }
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('photoLoading').style.display = 'block';
-  document.getElementById('photoResult').style.display = 'none';
-
-  var prompt = '写真の料理・食材を識別してください。必ずJSON形式のみで回答。余分な文字は不要です。形式：{"items":[{"name":"料理名（日本語）","estimatedG":推定グラム数,"confidence":"high/medium/low"}]}。量は皿のサイズや一般的な1人前を参考に推定。最大8品目。グラム数は数値のみ。';
-
+// ===== localStorage でデータを保存・復元 =====
+function saveToStorage(){
   try {
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;
-    var response = await fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        contents:[{
-          parts:[
-            {inline_data:{mime_type: photoMimeType, data: photoBase64}},
-            {text: prompt}
-          ]
-        }],
-        generationConfig:{
-          temperature: 0.1,
-          maxOutputTokens: 1000,
-        }
-      })
+    var data = {};
+    // 基本情報
+    ['gender','age','weight','height','activity'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) data[id] = el.value;
     });
-
-    var data = await response.json();
-    console.log('Gemini response:', JSON.stringify(data));
-
-    if(data.error){
-      alert('APIエラー: ' + data.error.message);
-      return;
-    }
-
-    var text = '';
-    if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts){
-      text = data.candidates[0].content.parts.map(function(p){return p.text||'';}).join('');
-    }
-    console.log('Raw text:', text);
-
-    // JSONを安全に抽出
-    var jsonMatch = text.match(/\{[\s\S]*?\}\s*\]/);
-    if(!jsonMatch) jsonMatch = text.match(/\{[\s\S]*\}/);
-    if(!jsonMatch){
-      alert('食材を識別できませんでした。より鮮明な写真でお試しください。');
-      return;
-    }
-    var jsonStr = jsonMatch[0];
-    // 末尾が}]で終わらない場合に補完
-    if(!jsonStr.trim().endsWith(']}')){
-      jsonStr = jsonStr.replace(/,?\s*\]?\s*}?\s*$/, ']}');
-    }
-    try {
-      var parsed = JSON.parse(jsonStr);
-      photoDetectedItems = parsed.items || [];
-    } catch(e2) {
-      // さらにシンプルに修復
-      try {
-        var items = [];
-        var nameMatches = text.matchAll(/"name"\s*:\s*"([^"]+)"/g);
-        var gMatches = text.matchAll(/"estimatedG"\s*:\s*(\d+)/g);
-        var names = [...nameMatches].map(m=>m[1]);
-        var gs = [...gMatches].map(m=>+m[1]);
-        names.forEach(function(n,i){ items.push({name:n, estimatedG:gs[i]||100, confidence:'medium'}); });
-        photoDetectedItems = items;
-      } catch(e3) {
-        alert('JSON解析エラー。もう一度お試しください。');
-        return;
-      }
-    }
-    renderPhotoResults();
-
-  } catch(e) {
-    alert('解析に失敗しました: ' + e.message);
-    console.error(e);
-  } finally {
-    document.getElementById('analyzeBtn').disabled = false;
-    document.getElementById('photoLoading').style.display = 'none';
-  }
+    // 昼ごはんモード
+    data.lunchMode = lunchMode;
+    // 各食事の食材
+    ['morning-cats','lunch-cats','night-cats'].forEach(function(containerId){
+      var items = [];
+      document.querySelectorAll('#'+containerId+' .cat-block').forEach(function(block){
+        if(block.dataset.isSoup){
+          var soupData = {catId:block.dataset.catId, isSoup:true, type:'', ings:[]};
+          var typeSel = block.querySelector('.soup-type-sel');
+          if(typeSel) soupData.type = typeSel.value;
+          if(block._ingContainer){
+            block._ingContainer.querySelectorAll('.soup-ing').forEach(function(ing){
+              soupData.ings.push({
+                food: ing._disp ? ing._disp.dataset.food : '',
+                g: ing._gSel ? ing._gSel.value : '30'
+              });
+            });
+          }
+          items.push(soupData);
+        } else if(block._getItems){
+          var blockData = {catId:block.dataset.catId, isSoup:false, rows:[]};
+          var multiItems = block.querySelectorAll('.multi-item');
+          multiItems.forEach(function(mi){
+            blockData.rows.push({
+              food: mi._disp ? mi._disp.dataset.food : '',
+              g: mi._gSel ? mi._gSel.value : ''
+            });
+          });
+          items.push(blockData);
+        }
+      });
+      data[containerId] = items;
+    });
+    localStorage.setItem('meal_planner_data', JSON.stringify(data));
+  } catch(e){ console.log('save error', e); }
 }
 
-function findClosestFood(name){
-  if(!name) return null;
-  // 完全一致
-  if(FOODS[name]) return {key:name, food:FOODS[name]};
-  var keys = Object.keys(FOODS);
-  // 括弧や助詞を除いた名前で検索
-  var clean = name.replace(/[（）のをにがはも・　]/g,'');
-  // 前方一致・含む検索
-  for(var i=0;i<keys.length;i++){
-    var k=keys[i];
-    var kclean=k.replace(/[（）のをにがはも・　]/g,'');
-    if(k===name||kclean===clean) return {key:k,food:FOODS[k]};
-  }
-  for(var i=0;i<keys.length;i++){
-    var k=keys[i];
-    if(k.includes(name)||name.includes(k)) return {key:k,food:FOODS[k]};
-  }
-  // 読みで検索
-  var lname = name.toLowerCase();
-  var hname = lname.replace(/[ァ-ヶ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0x60);});
-  for(var j=0;j<keys.length;j++){
-    var k2=keys[j];
-    var r=FOODS[k2].read||'';
-    if(r&&(r.includes(hname.slice(0,4))||hname.includes(r.slice(0,4)))) return {key:k2,food:FOODS[k2]};
-  }
-  // 先頭4文字で部分一致
-  var short=clean.slice(0,4);
-  for(var m=0;m<keys.length;m++){
-    var km=keys[m];
-    if(km.includes(short)||short.length>=3&&clean.includes(km.slice(0,4))) return {key:km,food:FOODS[km]};
-  }
-  return null;
+function loadFromStorage(){
+  try {
+    var raw = localStorage.getItem('meal_planner_data');
+    if(!raw) return;
+    var data = JSON.parse(raw);
+    // 基本情報を復元
+    ['gender','age','weight','height','activity'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && data[id] !== undefined) el.value = data[id];
+    });
+    // 昼ごはんモードを復元
+    if(data.lunchMode) setLunchMode(data.lunchMode);
+    // calcGoalsを更新
+    calcGoals();
+    // 食材を復元（DOMが構築された後に実行）
+    setTimeout(function(){
+      ['morning-cats','lunch-cats','night-cats'].forEach(function(containerId){
+        if(!data[containerId]) return;
+        data[containerId].forEach(function(blockData){
+          var block = [...document.querySelectorAll('#'+containerId+' .cat-block')]
+            .find(function(b){ return b.dataset.catId === blockData.catId; });
+          if(!block) return;
+          if(blockData.isSoup && block._ingContainer){
+            var typeSel = block.querySelector('.soup-type-sel');
+            if(typeSel && blockData.type) typeSel.value = blockData.type;
+            // 具材を復元
+            var existingIngs = block._ingContainer.querySelectorAll('.soup-ing');
+            blockData.ings.forEach(function(ing, i){
+              if(!ing.food) return;
+              var ingEl = existingIngs[i];
+              if(!ingEl){
+                // 具材を追加
+                var addBtn = block.querySelector('.add-item-btn');
+                if(addBtn) addBtn.click();
+                var newIngs = block._ingContainer.querySelectorAll('.soup-ing');
+                ingEl = newIngs[newIngs.length-1];
+              }
+              if(ingEl && ingEl._disp){
+                ingEl._disp.textContent = ing.food.replace('（スープ用）','');
+                ingEl._disp.className = 'food-disp';
+                ingEl._disp.dataset.food = ing.food;
+                if(ingEl._gSel) ingEl._gSel.value = ing.g;
+              }
+            });
+          } else if(!blockData.isSoup && blockData.rows){
+            var body = block.querySelector('.cat-body');
+            var addBtn = block.querySelector('.add-item-btn');
+            blockData.rows.forEach(function(row, i){
+              if(!row.food) return;
+              var multiItems = block.querySelectorAll('.multi-item');
+              var mi = multiItems[i];
+              if(!mi && addBtn){
+                addBtn.click();
+                mi = block.querySelectorAll('.multi-item')[i];
+              }
+              if(mi && mi._disp && FOODS[row.food]){
+                mi._disp.textContent = row.food+'（'+FOODS[row.food].cal+'kcal/100g）';
+                mi._disp.className = 'food-disp';
+                mi._disp.dataset.food = row.food;
+                if(mi._gSel) mi._gSel.value = row.g;
+              }
+            });
+          }
+        });
+      });
+      updateLiveBar();
+    }, 300);
+  } catch(e){ console.log('load error', e); }
 }
 
-function renderPhotoResults(){
-  var list = document.getElementById('photoItemList');
-  var matchedItems = photoDetectedItems.map(function(item){
-    return Object.assign({},item,{matched: findClosestFood(item.name)});
-  });
-  photoDetectedItems = matchedItems;
-  if(matchedItems.length === 0){
-    list.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:8px 0">食材を識別できませんでした。より明るく鮮明な写真でお試しください。</p>';
-    document.getElementById('photoResult').style.display = 'block';
-    document.getElementById('photoApplyBtn').style.display = 'none';
-    return;
-  }
-  var html = '';
-  for(var i=0;i<matchedItems.length;i++){
-    var item = matchedItems[i];
-    var matched = item.matched;
-    var confColor = item.confidence==='high'?'#7BA59E':(item.confidence==='medium'?'#C9A05A':'#C97B5A');
-    var confLabel = item.confidence==='high'?'確実':(item.confidence==='medium'?'概算':'推測');
-    var kcal = matched ? Math.round(matched.food.cal * item.estimatedG / 100) + 'kcal' : '—';
-    var notInDB = matched ? '' : '<span style="color:#C97B5A"> ※DB未登録</span>';
-    var displayName = matched ? matched.key : item.name;
-    html += '<div class="photo-item">';
-    html += '<div class="photo-item-check checked" id="chk-' + i + '" onclick="togglePhotoItem(this,' + i + ')">✓</div>';
-    html += '<div style="flex:1">';
-    html += '<div style="font-size:13px;color:var(--text);font-weight:500">' + displayName + '</div>';
-    html += '<div style="font-size:11px;color:var(--text3);margin-top:1px">約' + item.estimatedG + 'g　<span style="color:' + confColor + '">' + confLabel + '</span>' + notInDB + '</div>';
-    html += '</div>';
-    html += '<div style="font-size:12px;color:var(--text2);text-align:right;white-space:nowrap">' + kcal + '</div>';
-    html += '</div>';
-  }
-  list.innerHTML = html;
-  document.getElementById('photoResult').style.display = 'block';
-  document.getElementById('photoApplyBtn').style.display = 'block';
+// 変更時に自動保存（debounce）
+var saveTimer;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToStorage, 800);
+}
+// イベント監視に追加
+document.addEventListener('change', scheduleSave);
+document.addEventListener('click', scheduleSave);
+
+// クイックカロリー表示更新
+function updateQuickCal(){
+  var m = getMealN('morning-cats', MORNING_CATS);
+  var l = getLunchNutrients();
+  var n = getMealN('night-cats', NIGHT_CATS);
+  var mEl = document.getElementById('morning-quick-cal');
+  var lEl = document.getElementById('lunch-quick-cal');
+  var nEl = document.getElementById('night-quick-cal');
+  if(mEl) mEl.textContent = Math.round(m.cal) > 0 ? Math.round(m.cal)+'kcal' : '— kcal';
+  if(lEl) lEl.textContent = Math.round(l.cal) > 0 ? Math.round(l.cal)+'kcal' : '— kcal';
+  if(nEl) nEl.textContent = Math.round(n.cal) > 0 ? Math.round(n.cal)+'kcal' : '— kcal';
 }
 
-function togglePhotoItem(el, i){
-  el.classList.toggle('checked');
-  el.textContent = el.classList.contains('checked') ? '✓' : '';
-}
-
-function applyPhotoResults(){
-  var checkedItems = photoDetectedItems.filter(function(item,i){
-    var chk = document.getElementById('chk-'+i);
-    return chk && chk.classList.contains('checked') && item.matched;
-  });
-  if(checkedItems.length === 0){ alert('反映する食材を選んでください'); return; }
-  var containerId = photoMealTarget === 'morning' ? 'morning-cats' : 'night-cats';
-  checkedItems.forEach(function(item){
-    var foodKey = item.matched.key;
-    var food = item.matched.food;
-    var g = item.estimatedG;
-    var allBlocks = Array.from(document.querySelectorAll('#'+containerId+' .cat-block')).filter(function(b){ return !b.dataset.isSoup; });
-    var applied = false;
-    for(var i=0;i<allBlocks.length;i++){
-      var block = allBlocks[i];
-      var disp = block.querySelector('.food-disp');
-      var gSel = block.querySelector('.g-sel');
-      if(!disp||!gSel) continue;
-      if(disp.dataset.food === ''){
-        disp.textContent = foodKey + '（' + food.cal + 'kcal/100g）';
-        disp.className = 'food-disp';
-        disp.dataset.food = foodKey;
-        var opts = Array.from(gSel.options);
-        var closest = opts.reduce(function(a,b){ return Math.abs(+b.value-g)<Math.abs(+a.value-g)?b:a; });
-        gSel.value = closest.value;
-        applied = true;
-        break;
-      }
-    }
-    if(!applied && allBlocks.length > 0){
-      var b0 = allBlocks[0];
-      var d0 = b0.querySelector('.food-disp');
-      var g0 = b0.querySelector('.g-sel');
-      if(d0&&g0){
-        d0.textContent = foodKey + '（' + food.cal + 'kcal/100g）';
-        d0.className = 'food-disp';
-        d0.dataset.food = foodKey;
-        var opts2 = Array.from(g0.options);
-        var cl2 = opts2.reduce(function(a,b){ return Math.abs(+b.value-g)<Math.abs(+a.value-g)?b:a; });
-        g0.value = cl2.value;
-      }
-    }
-  });
-  updateLiveBar();
-  var applyBtn = document.getElementById('photoApplyBtn');
-  applyBtn.textContent = '✓ 反映しました！';
-  applyBtn.style.background = '#7BA59E';
-  setTimeout(function(){
-    applyBtn.textContent = '選んだ食材をアプリに反映する';
-    applyBtn.style.background = '';
-  }, 2000);
-  document.getElementById(photoMealTarget+'-card').scrollIntoView({behavior:'smooth'});
-}
-
-
-// ===== 食事ごとの栄養サマリー =====
-function updateMealSummary(containerId, cats, summaryId){
-  var ns = getMealN(containerId, cats);
-  var el = document.getElementById(summaryId);
-  if(!el) return;
-  if(ns.cal < 1){ el.style.display='none'; return; }
-  el.style.display='block';
-  var mealName = containerId==='morning-cats'?'朝ごはん':containerId==='lunch-cats'?'昼ごはん':'夜ごはん';
-  el.innerHTML = '<div class="meal-summary-title">' + mealName + 'の合計</div>'
-    + '<div class="meal-summary-grid">'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.cal) + '</div><div class="meal-summary-lbl">kcal</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.pro) + '</div><div class="meal-summary-lbl">たんぱく質g</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.ca) + '</div><div class="meal-summary-lbl">カルシウムmg</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + ns.fe.toFixed(1) + '</div><div class="meal-summary-lbl">鉄分mg</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.carb) + '</div><div class="meal-summary-lbl">炭水化物g</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.fat) + '</div><div class="meal-summary-lbl">脂質g</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.vc) + '</div><div class="meal-summary-lbl">ビタミンCmg</div></div>'
-    + '<div class="meal-summary-item"><div class="meal-summary-val">' + Math.round(ns.cal) + '</div><div class="meal-summary-lbl">合計kcal</div></div>'
-    + '</div>';
-}
-
-// オリジナルのupdateLiveBarをラップして食事サマリーも更新
-var _origUpdateLiveBar = updateLiveBar;
+// updateLiveBarをラップしてクイックカルも更新
+var _origLiveBar2 = updateLiveBar;
 updateLiveBar = function(){
-  _origUpdateLiveBar();
-  updateMealSummary('morning-cats', MORNING_CATS, 'morning-meal-summary');
-  updateMealSummary('night-cats', NIGHT_CATS, 'night-meal-summary');
-  if(lunchMode==='manual') updateMealSummary('lunch-cats', LUNCH_CATS, 'lunch-meal-summary');
+  _origLiveBar2();
+  updateQuickCal();
 };
 
 buildMeal('morning-cats',MORNING_CATS);
@@ -1910,6 +1733,8 @@ buildMeal('lunch-cats',LUNCH_CATS);
 buildMeal('night-cats',NIGHT_CATS);
 ['gender','age','weight','height','activity'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',calcGoals)});
 calcGoals();
+// ページ読み込み時にデータを復元
+loadFromStorage();
 </script>
 </body>
 </html>
